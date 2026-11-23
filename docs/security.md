@@ -107,7 +107,7 @@
 PC 에서 (PowerShell, `C:\sugo`):
 
 - [ ] `docker compose ps` → web, db 가 `healthy`, backup 이 `Up`
-- [ ] `docker compose port db 5432` → **아무것도 안 나옴** (DB 포트 미노출)
+- [ ] `docker compose ps` 의 PORTS 칸에서 **db 에는 `0.0.0.0:...->` 가 없음** (DB 포트 미노출). 웹만 `0.0.0.0:3000->3000/tcp`
 - [ ] `Test-NetConnection localhost -Port 2375` → `TcpTestSucceeded : False` (Docker 데몬 TCP 꺼짐)
 - [ ] `Get-NetFirewallRule -DisplayName "Sugo web (LAN only)" | Get-NetFirewallAddressFilter` → `RemoteAddress : LocalSubnet`, 규칙 Profile 이 `Private`
 - [ ] `Get-NetConnectionProfile` → 집 네트워크가 `Private`

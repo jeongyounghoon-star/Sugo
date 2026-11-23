@@ -67,7 +67,10 @@ ok "parent pin"
 
 # 7. 컨테이너 보안 설정 (docker 가 있는 곳에서만)
 if command -v docker >/dev/null 2>&1 && docker compose ps >/dev/null 2>&1; then
-  [ -z "$(docker compose port db 5432 2>/dev/null || true)" ] || fail "db port published to host"
+  for svc in db backup; do
+    n="$(docker inspect -f '{{len .HostConfig.PortBindings}}' "$(docker compose ps -q "$svc")")"
+    [ "$n" = "0" ] || fail "$svc publishes ports to host"
+  done
   for svc in web db backup; do
     cid="$(docker compose ps -q "$svc")"
     user="$(docker inspect -f '{{.Config.User}}' "$cid")"
