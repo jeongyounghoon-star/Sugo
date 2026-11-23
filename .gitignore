@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (비밀값: 절대 커밋 금지)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -46,3 +47,7 @@ next-env.d.ts
 # python
 __pycache__/
 *.pyc
+
+# deploy (집 PC)
+/backups/
+/logs/

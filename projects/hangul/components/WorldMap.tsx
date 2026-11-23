@@ -6,9 +6,10 @@ import { IconLink } from "@/components/IconButton";
 import { playSequence, stopAudio } from "../audio/player";
 import { worldAudio } from "../audio/ids";
 import { WORLDS, type WorldDef } from "../data/curriculum";
-import { getPet } from "../data/pets";
+import { PETS, getPet } from "../data/pets";
 import { isStagePassed, isWorldCleared, isWorldUnlocked, petStageFor, type Progress } from "../lib/progress";
-import { useProgress } from "../lib/store";
+import { useActiveProfileId, useCachedProfiles } from "@/lib/profiles/client";
+import { activateProfile, useProgress, useSyncStatus } from "../lib/store";
 import { Pet } from "./Pet";
 import { Loading, SpeakerButton } from "./ui";
 
@@ -41,7 +42,8 @@ export function WorldMap() {
           🏠
         </IconLink>
         <h1 className="text-3xl text-sky-900 drop-shadow-sm sm:text-4xl">한글 모험</h1>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
+          <ProfileButton />
           <SpeakerButton audio={["p_map_welcome"]} />
           <IconLink href="/hangul/pets" label="펫과 스티커 도감" color="#fff3bf">
             🐾
@@ -63,6 +65,30 @@ export function WorldMap() {
         ))}
       </ol>
     </main>
+  );
+}
+
+/** 지금 아이 (누르면 다른 아이로 바꾸기). 서버와 연결이 끊기면 작은 구름 표시 */
+function ProfileButton() {
+  const id = useActiveProfileId();
+  const profiles = useCachedProfiles();
+  const sync = useSyncStatus();
+  const me = profiles.find((p) => p.id === id);
+  const pet = getPet(me?.avatar ?? "") ?? PETS[0];
+  return (
+    <button
+      type="button"
+      onClick={() => activateProfile(null)}
+      aria-label={`${me?.nickname ?? "아이"} (다른 아이로 바꾸기)`}
+      className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg transition active:scale-95"
+    >
+      <Pet pet={pet} stage={2} size={56} />
+      {sync === "offline" && (
+        <span className="absolute -bottom-1 -right-1 text-xl" title="서버에 연결 안 됨 (진도는 이 기기에 저장 중)">
+          ☁️
+        </span>
+      )}
+    </button>
   );
 }
 

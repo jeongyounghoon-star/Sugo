@@ -15,7 +15,7 @@ import {
 } from "../lib/progress";
 import { generateQuestions, isReviewable, seededRng, type Question } from "../lib/questions";
 import { dueItems, recordAnswer } from "../lib/review";
-import { getProgress, updateProgress, useProgress } from "../lib/store";
+import { getProgress, recordPlay, updateProgress, useProgress } from "../lib/store";
 import { DailyDoneOverlay } from "./DailyDoneOverlay";
 import { BalloonGame } from "./games/BalloonGame";
 import { BlockGame } from "./games/BlockGame";
@@ -76,6 +76,7 @@ export function PlayStage({ stageId }: { stageId: string }) {
     }
     const r = recordStageResult(getProgress(), stageId, correct, total);
     updateProgress(() => r.progress);
+    recordPlay({ stageId, correct, total, stars: r.stars });
     setPhase({ name: "result", result: r });
     const voices = [r.stars >= 3 ? "p_stage_clear_3" : "p_stage_clear_low"];
     if (r.newSticker) voices.push("p_sticker");

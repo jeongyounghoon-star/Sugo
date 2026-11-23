@@ -42,6 +42,8 @@ export const PROMPTS = {
   p_world_clear: "모험 완료! 펫이 멋지게 진화했어!",
   p_daily_done: "오늘 끝! 정말 잘했어. 내일 또 만나자!",
   p_pets: "내 펫과 스티커를 구경해 봐!",
+  p_profile_pick: "누구랑 놀까? 내 펫을 눌러 줘!",
+  p_profile_new: "새 친구를 만들어 볼까? 마음에 드는 펫을 골라 줘!",
 } as const;
 
 export type PromptId = keyof typeof PROMPTS;

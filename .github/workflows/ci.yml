@@ -5,20 +5,30 @@ on:
     branches: [main]
   pull_request:
 
+# 기본 권한 없음. 각 job 이 필요한 것만 연다.
+permissions: {}
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   check:
+    name: lint / typecheck / test / build / audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: npm audit (high 이상이면 실패)
+        run: npm audit --audit-level=high
       - name: Lint
         run: npm run lint
       - name: Typecheck
@@ -27,3 +37,45 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+
+  secrets:
+    name: secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks (전체 git 기록)
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" \
+            ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            git /repo --redact --verbose --exit-code 1
+
+  compose-smoke:
+    name: docker compose smoke test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build image
+        run: docker build -t sugo:ci .
+      - name: Start stack (실제 docker-compose.yml, 운영과 같은 보안 설정)
+        run: |
+          umask 077
+          printf 'POSTGRES_PASSWORD=%s\nSUGO_IMAGE=sugo:ci\nWEB_PORT=3000\n' "$(openssl rand -hex 32)" > .env
+          mkdir -p backups && chmod 777 backups
+          docker compose up -d --wait --wait-timeout 180
+      - name: Smoke test
+        run: bash scripts/smoke-test.sh http://localhost:3000
+      - name: Logs
+        if: always()
+        run: docker compose logs --no-color | grep -v POSTGRES_PASSWORD | tail -n 200
+      - name: Down
+        if: always()
+        run: docker compose down -v

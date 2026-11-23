@@ -35,6 +35,13 @@ export function parseProgress(raw: string | null): Progress {
         seconds: typeof daily.seconds === "number" ? daily.seconds : 0,
         dismissed: daily.dismissed === true,
       },
+      history: isObject(data.history)
+        ? Object.fromEntries(
+            Object.entries(data.history).filter(
+              (e): e is [string, number] => typeof e[1] === "number",
+            ),
+          )
+        : {},
     };
   } catch {
     return base;

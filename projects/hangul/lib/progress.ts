@@ -22,7 +22,11 @@ export interface Progress {
   review: ReviewState;
   session: { index: number; lastActive: number | null };
   daily: { date: string; seconds: number; dismissed: boolean };
+  /** 날짜별 학습 시간(초). 나중 부모 화면용. 최근 HISTORY_DAYS일만 보관 */
+  history: Record<string, number>;
 }
+
+export const HISTORY_DAYS = 400;
 
 export function createProgress(): Progress {
   return {
@@ -31,6 +35,7 @@ export function createProgress(): Progress {
     review: emptyReview(),
     session: { index: 0, lastActive: null },
     daily: { date: "", seconds: 0, dismissed: false },
+    history: {},
   };
 }
 
@@ -167,7 +172,18 @@ function dailyFor(p: Progress, now: number): Progress["daily"] {
 
 export function addPlayTime(p: Progress, seconds: number, now: number): Progress {
   const daily = dailyFor(p, now);
-  return { ...p, daily: { ...daily, seconds: daily.seconds + seconds } };
+  const next = { ...p, daily: { ...daily, seconds: daily.seconds + seconds } };
+  if (seconds <= 0) return next;
+  const history = { ...p.history, [daily.date]: (p.history[daily.date] ?? 0) + seconds };
+  return { ...next, history: pruneHistory(history) };
+}
+
+/** 오래된 날짜 기록은 버린다 (최근 HISTORY_DAYS개) */
+export function pruneHistory(history: Record<string, number>): Record<string, number> {
+  const days = Object.keys(history);
+  if (days.length <= HISTORY_DAYS) return history;
+  const keep = days.sort().slice(-HISTORY_DAYS);
+  return Object.fromEntries(keep.map((d) => [d, history[d]]));
 }
 
 /** 오늘 10분을 넘겼고 아직 "더 하기"를 누르지 않았으면 true */
