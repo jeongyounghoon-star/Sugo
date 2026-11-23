@@ -14,7 +14,7 @@ echo "복구 테스트: ${FILE}"
 dropdb --if-exists restore_test
 createdb restore_test
 pg_restore --no-owner --exit-on-error -d restore_test "/backups/${FILE}"
-psql -d restore_test -At -c "select 'profiles=' || count(*) from profiles" \
+psql -d restore_test -At -v ON_ERROR_STOP=1 -c "select 'profiles=' || count(*) from profiles" \
   -c "select 'hangul_progress=' || count(*) from hangul_progress" \
   -c "select 'hangul_plays=' || count(*) from hangul_plays"
 dropdb restore_test
