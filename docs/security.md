@@ -13,6 +13,7 @@
 | **web 포트(3000)만** 호스트에 노출 | 공격 표면 최소화 |
 | Windows 방화벽 허용: **개인(Private) 프로필 + LocalSubnet** 에서만 | 집 LAN 에서 태블릿 접속 |
 | Windows 방화벽 **차단 규칙 2개**: ① 공용/도메인 프로필에서 3000 차단 ② LAN 밖 주소(공인 IPv4 전체, IPv6 전역 `2000::/3`)에서 3000 차단 | 허용 규칙은 OR 로 합쳐지므로, Docker Desktop 이 만든 **프로그램 단위 허용 규칙**(모든 주소/공용 프로필)이 있으면 위 허용 규칙만으로는 아무것도 제한하지 못함. 차단은 허용보다 우선하므로 프로그램 규칙과 상관없이 막힘 |
+| CGNAT/Tailscale 대역 `100.64.0.0/10`도 **기본 차단**. `setup.ps1 -AllowTailscale`을 명시한 경우에만 그 대역 전용 허용 규칙을 만들고 나머지 공용 인터넷은 계속 차단 | Tailscale 도입만으로 의도치 않게 모든 오버레이 피어에 노출되지 않게 |
 | `setup.ps1` 이 Docker/WSL 관련 인바운드 규칙을 **점검해서 표로 보여 주고** 공용/모든 주소 허용이면 경고 (`-FixDockerRules` 로 개인+로컬 서브넷으로 좁힘) | Docker 의 다른 포트도 집 밖에 열리지 않게 |
 | 게스트 Wi-Fi 의 **AP 격리는 유지** (손님 폰·IoT 는 게스트 Wi-Fi 에, 태블릿과 PC 는 메인 Wi-Fi 에) | 위협 모델상 믿지 않는 기기가 PC:3000 (그리고 PC 의 다른 서비스)에 닿지 않게. 문서에서 "격리 끄기" 안내를 없앰 |
 | **Postgres 호스트 포트 없음**, `backend` 네트워크는 `internal: true` | DB 는 web/backup 컨테이너에서만 접근, DB 컨테이너는 인터넷으로도 못 나감 |
@@ -32,12 +33,12 @@
 | `docker.yml`: digest 로 푸시 → 서명 → **PC 와 같은 코드(`deploy/lib.ps1`)로 검증** → 그 뒤에만 `:latest` 이동 → 다시 PC 방식으로 latest 확인 | 서명 안 된 digest 를 latest 가 가리키는 순간이 없음 |
 | 업데이트 직전 **자동 백업** (`backups\sugo-pre-*.dump`, 5개 보관). 백업 실패 시 업데이트 안 함 | 새 이미지의 마이그레이션이 데이터를 망가뜨려도 직전 상태로 복구 가능 |
 | 새 이미지가 4분 안에 healthy 가 안 되면 **이전 digest 로 자동 롤백** | |
-| `maintenance.lock` + 배포 뮤텍스: 복구(`restore.ps1`) 중에는 자동 업데이트가 아무것도 안 함 | 복구 중 web 이 다시 켜지며 마이그레이션이 `pg_restore` 와 겹치는 것 방지 |
+| 시각/PID를 기록한 `maintenance.lock` + 배포 뮤텍스: 복구(`restore.ps1`) 중에는 자동 업데이트가 아무것도 안 함. 6시간 넘은 잠금은 `WARNING` 로그와 함께 정리 | 복구 중 web 이 다시 켜지며 마이그레이션이 `pg_restore` 와 겹치는 것 방지. 비정상 종료 뒤 업데이트가 영구 정지하지 않게 |
 | CI `deploy-scripts` job 이 **실제 update.ps1/restore.ps1** 을 돌려 확인: 서명 없는 이미지 거부, **다른 워크플로가 서명한 이미지 거부**, 서명된 이미지 digest 고정, 업데이트 전 백업, 잠금 중 업데이트 안 함, 복구 | |
 | 자동 업데이트는 **이미지만** (compose/스크립트는 `git pull` 로 수동) | 원격 변경이 집 PC 에서 자동 실행되는 범위를 이미지 안으로 제한 |
 | 이미지 빌드/푸시는 **main 에서 CI 가 통과한 커밋만** (`workflow_run`, head_branch/repo 확인) | PR/포크 코드가 이미지로 나가지 않게 |
 | 워크플로 `permissions: {}` 기본, job 별 최소 권한 (`contents: read`, 푸시 job 만 `packages: write` + `id-token: write`) | 토큰 탈취 시 피해 최소화 |
-| **main 브랜치 보호** (PR 필수, 필수 체크 3개, 강제 푸시/삭제 금지): 2026-11-24 적용됨 | main 커밋 = 집 PC 배포이므로 리뷰 없는 직접 푸시를 막음 |
+| **main 브랜치 보호** (PR 필수, 필수 체크 4개, 강제 푸시/삭제 금지): 2026-11-24 적용됨 | main 커밋 = 집 PC 배포이므로 리뷰 없는 직접 푸시를 막음 |
 | 서드파티 액션은 **커밋 SHA 고정** (주석에 버전) | 태그 바꿔치기 공격 방지. Dependabot 이 갱신 PR 을 올림 |
 | `persist-credentials: false` | 체크아웃 후 git 설정에 토큰이 남지 않게 |
 | 이미지 provenance + SBOM 첨부 | 무엇으로 만들어졌는지 추적 가능 |
@@ -64,6 +65,9 @@
 - 비밀값(DB 비밀번호, `PIN_PEPPER`, `SETUP_CODE`)은 `.env` 에만. `.gitignore`/`.dockerignore` 에 포함, **커밋 금지**.
 - `deploy/setup.ps1` 이 `RandomNumberGenerator` 로 **32바이트(64자 hex) DB 비밀번호와 PIN_PEPPER**, 8자리 설치 코드를 만들고, `.env` 권한을 현재 사용자/SYSTEM/Administrators 로 제한 (`icacls` 실패하면 설치 중단). DB 비밀번호와 페퍼는 화면에 출력하지 않음.
 - `.env` 가 이미 있으면 값을 검사: DB 비밀번호가 비었거나 `.env.example` 자리표시자거나 32자 미만이면 **설치 중단** (`.env.example` 을 그대로 복사한 경우 방지).
+- setup.ps1 재실행은 기존 `.env`의 비밀값을 유지합니다. 전체 재생성은 명시적 `-OverwriteEnv`에서만 가능하며 운영 DB가 생긴 뒤에는 금지합니다.
+- `NODE_ENV=production` 서버는 `PIN_PEPPER` 또는 `SETUP_CODE`가 비었으면 요청을 받기 전에 시작을 거부하고, 오류에는 변수 이름만 기록합니다(값은 기록하지 않음).
+- 서명 검증용 `SUGO_SIGNER_IDENTITY_REGEX` / `SUGO_COSIGN_DOCKER_ARGS` 오버라이드는 `GITHUB_ACTIONS=true`인 CI에서만 적용됩니다. 일반/프로덕션 호스트에서는 경고 후 무시합니다.
 - **설치 폴더 전체**(`C:\sugo`) 권한도 상속을 끊고 설치 사용자/SYSTEM/Administrators 만. `C:\` 기본 권한은 "인증된 사용자: 수정" 이라 그대로 두면 같은 PC 의 다른 표준 계정이 10분마다 부모 계정으로 실행되는 `update.ps1` 을 고치거나 백업 파일을 가져갈 수 있음.
 - `setup.ps1` 은 화면에 로그인한 그 계정으로 실행해야 함 (다른 관리자 계정이면 중단): 작업 스케줄러와 `.env` 권한이 Docker Desktop 이 도는 계정과 어긋나지 않게.
 - CI 의 `secrets` job 이 **gitleaks** 로 전체 git 기록을 검사 (실패 시 머지 불가).
@@ -101,7 +105,7 @@
 - 매일 `pg_dump` 백업 **하루 1개**, 최근 14개 보관 (컨테이너를 여러 번 다시 시작해도 하루 1개라 오래된 백업이 밀려나지 않음). 업데이트/복구 직전 백업은 따로 5개.
 - backup 컨테이너는 web 에 의존하지 않음 (web 이 망가져도 백업 계속, 첫 백업은 테이블이 생길 때까지 기다림).
 - **복구 테스트** `deploy/restore-test.ps1` (임시 DB 에 복구 → 행 수 확인 → 삭제), **실제 복구** `deploy/restore.ps1` (자동 업데이트 멈춤 → 복구 전 백업 → `pg_restore --single-transaction --exit-on-error` → 재시작).
-- 백업 파일은 암호화되어 있지 않습니다. `backups\` 폴더를 외부로 복사할 때는 개인 저장소에만. PIN 해시가 들어 있지만 `PIN_PEPPER` 없이는 오프라인으로 풀 수 없음 (`.env` 는 백업과 따로 보관).
+- 백업 파일은 암호화되어 있지 않습니다. `backups\` 폴더를 외부로 복사할 때는 개인 저장소에만. PIN 해시가 들어 있지만 `PIN_PEPPER` 없이는 오프라인으로 풀 수 없음. `.env`도 복구에 필요하므로 DB dump와 분리한 암호화 저장소에 보관합니다. 잃으면 데이터는 복구할 수 있어도 기존 PIN은 재설정해야 합니다.
 
 ## 7. 알려진 한계 (의도적으로 받아들인 것)
 
@@ -109,12 +113,13 @@
 - **아이 쪽에는 로그인이 없음**: 같은 LAN 의 누구나 프로필 목록과 진도를 볼 수 있고, 진도를 올릴 수 있음(별 3개로 잠금 해제 등, 깎을 수는 없음), 프로필을 만들 수 있음 (최대 10개). 삭제/초기화는 PIN 필요.
 - rate limit 과 PIN 잠금은 **기기 구분 없이 전체 기준** (IP 헤더는 위조 가능해서). LAN 안 누군가가 일부러 계속 틀리면 부모도 잠김(최대 24시간), 쓰기 요청을 쏟아내면 아이들 동기화가 잠시 429. 브라우저에 먼저 저장되므로 기록은 사라지지 않음. 급하면 PC 에서 잠금 해제: `docker compose exec -T db psql -U sugo -d sugo -c "delete from settings where key='parent_pin_lock'"`.
 - **web 컨테이너는 LAN/인터넷으로 나갈 수 있음** (포트를 열어야 해서 `frontend` 를 internal 로 못 만듦). 런타임에 외부 통신은 필요 없지만, 이미지가 오염되면 통로가 될 수 있음 → 서명 검증(2장)으로 완화. 더 막으려면 Windows 쪽 아웃바운드 규칙 (나중 과제).
+- **`-AllowTailscale`은 모든 Tailscale 피어(`100.64.0.0/10`)에 Sugo 포트를 엽니다.** 공용 인터넷은 계속 차단되지만 tailnet 구성원은 신뢰 경계 안으로 들어오므로 Tailscale ACL로 필요한 기기만 허용해야 합니다. 사용하지 않으면 기본(LAN 전용)을 유지합니다.
 
 ## 8. 레포 보안 설정 권장 (GitHub → Settings)
 
 1. **Branches → Branch protection rule (`main`)**: ✅ 2026-11-24 적용
    - Require a pull request before merging (혼자 쓰는 저장소면 승인 수 0, PR 필수만은 꼭)
-   - Require status checks to pass: `lint / typecheck / test / build / audit`, `secret scan (gitleaks)`, `docker compose smoke test`
+   - Require status checks to pass: `lint / typecheck / test / build / audit`, `secret scan (gitleaks)`, `docker compose smoke test`, `deploy scripts (signature-gated update / restore)`
    - Require branches to be up to date, Do not allow bypassing, 강제 푸시/삭제 금지
 2. **Code security → Dependabot alerts / Dependabot security updates** 켜기 (`.github/dependabot.yml` 로 버전 업데이트도 주간 PR)
 3. **Secret scanning + Push protection** 켜기

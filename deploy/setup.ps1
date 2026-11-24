@@ -13,7 +13,8 @@
   6. 서명을 확인한 이미지로 실행 (deploy/update.ps1 -Initial)
   7. 작업 스케줄러에 10분마다 자동 업데이트(deploy/update.ps1) 등록
 
-  여러 번 실행해도 안전합니다 (.env 의 기존 값은 덮어쓰지 않음).
+  여러 번 실행해도 안전합니다 (.env 의 기존 값은 덮어쓰지 않음). 새 비밀값으로 재생성하려면
+  아직 운영 DB가 없는 경우에만 -OverwriteEnv 를 명시적으로 사용합니다.
 
 .EXAMPLE
   # 관리자 PowerShell 에서, 저장소 폴더(예: C:\sugo)에서:
@@ -25,6 +26,10 @@ param(
   [switch]$SkipFirewall,
   [switch]$SkipScheduledTask,
   [switch]$SkipFolderAcl,
+  # 기존 .env 전체를 새 비밀값으로 재생성 (운영 DB가 있으면 DB 비밀번호가 달라지므로 사용 금지)
+  [switch]$OverwriteEnv,
+  # Tailscale 피어(100.64.0.0/10)에서만 추가 접근 허용. 공용 인터넷은 계속 차단.
+  [switch]$AllowTailscale,
   # Docker 프로그램 허용 규칙을 개인 네트워크 + 로컬 서브넷으로 좁힌다
   [switch]$FixDockerRules,
   # 평소 로그인 계정이 아닌 다른 계정으로 실행하는 것을 허용 (권장하지 않음)
@@ -92,7 +97,10 @@ if (-not $SkipFolderAcl) {
 Write-Step ".env (비밀값) 준비"
 $envFile = Join-Path $Root ".env"
 $created = $false
-if (-not (Test-Path $envFile)) {
+if (-not (Test-Path $envFile) -or $OverwriteEnv) {
+  if ((Test-Path $envFile) -and $OverwriteEnv) {
+    Write-Warning "-OverwriteEnv: 기존 .env 전체를 새 비밀값으로 교체합니다. 운영 DB가 있으면 즉시 중단하세요."
+  }
   $content = @(
     "# deploy/setup.ps1 이 $(Get-Date -Format 'yyyy-MM-dd HH:mm') 에 생성. 커밋 금지.",
     "POSTGRES_PASSWORD=$(New-RandomHex 32)",
@@ -135,31 +143,37 @@ New-Item -ItemType Directory -Force -Path (Join-Path $Root "backups"), (Join-Pat
 Write-Host "backups\, logs\ 준비"
 
 # ---------------------------------------------------------------- 5. 방화벽
-# LAN 밖 주소 (사설망 10/8, 172.16/12, 192.168/16, CGNAT 100.64/10, 링크로컬, 루프백을 뺀 나머지 IPv4 + IPv6 전역 주소)
-$NonLanRanges = @(
-  "0.0.0.0-9.255.255.255", "11.0.0.0-100.63.255.255", "100.128.0.0-126.255.255.255",
-  "128.0.0.0-169.253.255.255", "169.255.0.0-172.15.255.255", "172.32.0.0-192.167.255.255",
-  "192.169.0.0-223.255.255.255", "2000::/3"
-)
+$firewallPolicy = Get-SugoFirewallPolicy -AllowTailscale:$AllowTailscale
+$NonLanRanges = $firewallPolicy.NonLanRanges
 if (-not $SkipFirewall) {
   Write-Step "Windows 방화벽 (개인 네트워크 + 로컬 서브넷만)"
   if (-not (Test-Admin)) {
     Write-Warning "관리자 권한이 아니라서 방화벽 규칙을 건너뜁니다. 관리자 PowerShell 에서 다시 실행하세요."
   } else {
     $allow = "Sugo web (LAN only)"
+    $allowTailscale = "Sugo web (Tailscale only)"
     $blockProfile = "Sugo web block (public/domain networks)"
     $blockRemote = "Sugo web block (non-LAN addresses)"
-    foreach ($n in @($allow, $blockProfile, $blockRemote)) {
+    foreach ($n in @($allow, $allowTailscale, $blockProfile, $blockRemote)) {
       Get-NetFirewallRule -DisplayName $n -ErrorAction SilentlyContinue | Remove-NetFirewallRule
     }
     New-NetFirewallRule -DisplayName $allow -Direction Inbound -Action Allow -Protocol TCP `
       -LocalPort $Port -Profile Private -RemoteAddress LocalSubnet | Out-Null
     # 허용 규칙은 OR 로 합쳐지므로, 다른 허용 규칙(Docker 프로그램 규칙 등)이 있어도 막히도록 "차단" 규칙을 둔다.
-    New-NetFirewallRule -DisplayName $blockProfile -Direction Inbound -Action Block -Protocol TCP `
-      -LocalPort $Port -Profile Public, Domain | Out-Null
+    if ($AllowTailscale) {
+      New-NetFirewallRule -DisplayName $allowTailscale -Direction Inbound -Action Allow -Protocol TCP `
+        -LocalPort $Port -Profile Any -RemoteAddress "100.64.0.0/10" | Out-Null
+      # Block every non-Tailscale address on Public/Domain profiles. Windows block rules override allow rules.
+      New-NetFirewallRule -DisplayName $blockProfile -Direction Inbound -Action Block -Protocol TCP `
+        -LocalPort $Port -Profile Public, Domain -RemoteAddress $firewallPolicy.ProfileBlockRemote | Out-Null
+    } else {
+      New-NetFirewallRule -DisplayName $blockProfile -Direction Inbound -Action Block -Protocol TCP `
+        -LocalPort $Port -Profile Public, Domain | Out-Null
+    }
     New-NetFirewallRule -DisplayName $blockRemote -Direction Inbound -Action Block -Protocol TCP `
       -LocalPort $Port -Profile Any -RemoteAddress $NonLanRanges | Out-Null
     Write-Host "허용: '$allow' (TCP $Port, Private, LocalSubnet)"
+    if ($AllowTailscale) { Write-Host "추가 허용: '$allowTailscale' (TCP $Port, 100.64.0.0/10만; 공용 인터넷은 차단)" }
     Write-Host "차단: '$blockProfile' (공용/도메인 네트워크), '$blockRemote' (LAN 밖 주소)"
 
     $profiles = Get-NetConnectionProfile | Select-Object InterfaceAlias, NetworkCategory
