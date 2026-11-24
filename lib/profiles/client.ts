@@ -130,9 +130,10 @@ export async function createProfile(nickname: string, avatar: string): Promise<P
 // ---------- 부모용 (PIN 필요) ----------
 
 export const parentApi = {
-  pinStatus: () => api<{ isSet: boolean }>("/api/parent/pin"),
-  setPin: (newPin: string, currentPin?: string) =>
-    api<{ ok: true }>("/api/parent/pin", { method: "POST", body: currentPin ? { newPin, currentPin } : { newPin } }),
+  pinStatus: () => api<{ isSet: boolean; setupCodeRequired: boolean }>("/api/parent/pin"),
+  /** 처음 만들 때는 setupCode(설치 코드), 바꿀 때는 currentPin */
+  setPin: (newPin: string, opts: { currentPin?: string; setupCode?: string } = {}) =>
+    api<{ ok: true }>("/api/parent/pin", { method: "POST", body: { newPin, ...opts } }),
   verify: (pin: string) => api<{ ok: true }>("/api/parent/verify", { method: "POST", body: { pin } }),
   rename: (id: string, nickname: string, pin: string) =>
     api<{ profile: Profile }>(`/api/profiles/${encodeURIComponent(id)}`, { method: "PATCH", body: { nickname, pin } }),

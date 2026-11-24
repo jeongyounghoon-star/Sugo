@@ -10,7 +10,7 @@ import {
   setActiveProfileId,
   useCachedProfiles,
 } from "@/lib/profiles/client";
-import type { Profile } from "@/lib/profiles/shared";
+import { PIN_MAX, PIN_MIN, SETUP_CODE_MAX, type Profile } from "@/lib/profiles/shared";
 
 /**
  * 부모 화면 (허브 공용). PIN을 확인해야 열린다.
@@ -19,9 +19,11 @@ import type { Profile } from "@/lib/profiles/shared";
 
 const MESSAGES: Record<string, string> = {
   wrong_pin: "PIN이 맞지 않아요.",
-  pin_locked: "여러 번 틀려서 10분 동안 잠겼어요.",
+  pin_locked: "여러 번 틀려서 잠겼어요. 잠시 뒤에 다시 해 주세요. (틀릴수록 더 오래 잠겨요)",
   pin_not_set: "먼저 PIN을 만들어 주세요.",
-  invalid_input: "입력을 확인해 주세요. (PIN은 숫자 4~6자리)",
+  pin_already_set: "이미 PIN이 만들어졌어요. 새로 고침해 주세요.",
+  wrong_setup_code: "설치 코드가 맞지 않아요. PC의 설치 화면이나 .env 파일의 SETUP_CODE 를 확인하세요.",
+  invalid_input: `입력을 확인해 주세요. (PIN은 숫자 ${PIN_MIN}~${PIN_MAX}자리)`,
   not_found: "이미 지워진 프로필이에요.",
 };
 
@@ -36,6 +38,8 @@ const button = "h-12 rounded-xl px-5 font-sans text-white shadow disabled:opacit
 
 export function ParentPanel() {
   const [pinSet, setPinSet] = useState<boolean | null>(null);
+  const [needsCode, setNeedsCode] = useState(false);
+  const [code, setCode] = useState("");
   const [pin, setPin] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +47,10 @@ export function ParentPanel() {
   useEffect(() => {
     parentApi
       .pinStatus()
-      .then((r) => setPinSet(r.isSet))
+      .then((r) => {
+        setPinSet(r.isSet);
+        setNeedsCode(r.setupCodeRequired);
+      })
       .catch((e) => setError(message(e)));
   }, []);
 
@@ -56,7 +63,7 @@ export function ParentPanel() {
       setError(null);
       try {
         if (pinSet) await parentApi.verify(pin);
-        else await parentApi.setPin(pin);
+        else await parentApi.setPin(pin, needsCode ? { setupCode: code } : {});
         setPinSet(true);
         setUnlocked(true);
       } catch (e) {
@@ -66,7 +73,9 @@ export function ParentPanel() {
     return (
       <Shell>
         <p className="text-slate-600">
-          {pinSet ? "부모 PIN을 입력하세요." : "처음이에요. 부모 PIN(숫자 4~6자리)을 만들어 주세요. 아이에게 알려주지 마세요."}
+          {pinSet
+            ? "부모 PIN을 입력하세요."
+            : `처음이에요. 부모 PIN(숫자 ${PIN_MIN}~${PIN_MAX}자리)을 만들어 주세요. 아이에게 알려주지 마세요.`}
         </p>
         <form
           className="flex flex-wrap items-center gap-3"
@@ -75,21 +84,37 @@ export function ParentPanel() {
             void submit();
           }}
         >
+          {!pinSet && needsCode && (
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={SETUP_CODE_MAX}
+              placeholder="설치 코드"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\s/g, ""))}
+              className={input}
+              aria-label="설치 코드 (PC 설치 화면에 나온 숫자)"
+            />
+          )}
           <input
             type="password"
             inputMode="numeric"
             autoComplete="off"
-            pattern="\d{4,6}"
-            maxLength={6}
+            placeholder={pinSet ? "PIN" : "새 PIN"}
+            maxLength={PIN_MAX}
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
             className={input}
             aria-label="부모 PIN"
           />
-          <button type="submit" className={`${button} bg-sky-600`} disabled={pin.length < 4}>
+          <button type="submit" className={`${button} bg-sky-600`} disabled={pin.length < PIN_MIN || (!pinSet && needsCode && !code)}>
             {pinSet ? "열기" : "PIN 만들기"}
           </button>
         </form>
+        {!pinSet && needsCode && (
+          <p className="text-sm text-slate-500">설치 코드는 PC에서 setup.ps1 을 실행했을 때 화면에 나온 숫자예요 (C:\sugo\.env 의 SETUP_CODE).</p>
+        )}
         {error && <p className="text-rose-600">{error}</p>}
       </Shell>
     );
@@ -221,7 +246,7 @@ function ChangePin({ currentPin, onChanged }: { currentPin: string; onChanged: (
         <input
           type="password"
           inputMode="numeric"
-          maxLength={6}
+          maxLength={PIN_MAX}
           value={next}
           onChange={(e) => setNext(e.target.value.replace(/\D/g, ""))}
           className={input}
@@ -230,10 +255,10 @@ function ChangePin({ currentPin, onChanged }: { currentPin: string; onChanged: (
         <button
           type="button"
           className={`${button} bg-sky-600`}
-          disabled={next.length < 4}
+          disabled={next.length < PIN_MIN}
           onClick={async () => {
             try {
-              await parentApi.setPin(next, currentPin);
+              await parentApi.setPin(next, { currentPin });
               onChanged(next);
               setNext("");
               setMsg("PIN을 바꿨어요.");

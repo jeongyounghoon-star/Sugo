@@ -25,37 +25,3 @@ export class RateLimiter {
     this.buckets.clear();
   }
 }
-
-/** 부모 PIN 실패가 많으면 잠시 잠근다 (전체 기준) */
-export class FailureLock {
-  private failures: number[] = [];
-  private lockedUntil = 0;
-
-  constructor(
-    private opts: { maxFailures: number; windowMs: number; lockMs: number },
-    private now: () => number = Date.now,
-  ) {}
-
-  isLocked(): boolean {
-    return this.now() < this.lockedUntil;
-  }
-
-  fail(): void {
-    const t = this.now();
-    this.failures = this.failures.filter((f) => t - f < this.opts.windowMs);
-    this.failures.push(t);
-    if (this.failures.length >= this.opts.maxFailures) {
-      this.lockedUntil = t + this.opts.lockMs;
-      this.failures = [];
-    }
-  }
-
-  succeed(): void {
-    this.failures = [];
-  }
-
-  reset(): void {
-    this.failures = [];
-    this.lockedUntil = 0;
-  }
-}
