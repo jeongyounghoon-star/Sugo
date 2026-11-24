@@ -144,7 +144,6 @@ Write-Host "backups\, logs\ 준비"
 
 # ---------------------------------------------------------------- 5. 방화벽
 $firewallPolicy = Get-SugoFirewallPolicy -AllowTailscale:$AllowTailscale
-$NonLanRanges = $firewallPolicy.NonLanRanges
 if (-not $SkipFirewall) {
   Write-Step "Windows 방화벽 (개인 네트워크 + 로컬 서브넷만)"
   if (-not (Test-Admin)) {
@@ -160,11 +159,11 @@ if (-not $SkipFirewall) {
       Get-NetFirewallRule -DisplayName $n -ErrorAction SilentlyContinue | Remove-NetFirewallRule
     }
     New-NetFirewallRule -DisplayName $allow -Direction Inbound -Action Allow -Protocol TCP `
-      -LocalPort $Port -Profile Private -RemoteAddress LocalSubnet | Out-Null
+      -LocalPort $Port -Profile Private -RemoteAddress $firewallPolicy.LanRemote | Out-Null
     # 허용 규칙은 OR 로 합쳐지므로, 다른 허용 규칙(Docker 프로그램 규칙 등)이 있어도 막히도록 "차단" 규칙을 둔다.
     if ($AllowTailscale) {
       New-NetFirewallRule -DisplayName $tailscaleRule -Direction Inbound -Action Allow -Protocol TCP `
-        -LocalPort $Port -Profile Any -RemoteAddress "100.64.0.0/10" | Out-Null
+        -LocalPort $Port -Profile Any -RemoteAddress $firewallPolicy.TailscaleRemote | Out-Null
       # Block every non-Tailscale address on Public/Domain profiles. Windows block rules override allow rules.
       New-NetFirewallRule -DisplayName $blockProfile -Direction Inbound -Action Block -Protocol TCP `
         -LocalPort $Port -Profile Public, Domain -RemoteAddress $firewallPolicy.ProfileBlockRemote | Out-Null
@@ -173,7 +172,7 @@ if (-not $SkipFirewall) {
         -LocalPort $Port -Profile Public, Domain | Out-Null
     }
     New-NetFirewallRule -DisplayName $blockRemote -Direction Inbound -Action Block -Protocol TCP `
-      -LocalPort $Port -Profile Any -RemoteAddress $NonLanRanges | Out-Null
+      -LocalPort $Port -Profile Any -RemoteAddress $firewallPolicy.NonLanRanges | Out-Null
     Write-Host "허용: '$allow' (TCP $Port, Private, LocalSubnet)"
     if ($AllowTailscale) { Write-Host "추가 허용: '$tailscaleRule' (TCP $Port, 100.64.0.0/10만; 공용 인터넷은 차단)" }
     Write-Host "차단: '$blockProfile' (공용/도메인 네트워크), '$blockRemote' (LAN 밖 주소)"
@@ -206,7 +205,7 @@ if (-not $SkipFirewall) {
         })
       if ($wide.Count -gt 0) {
         if ($FixDockerRules) {
-          $wide | Set-NetFirewallRule -Profile Private -RemoteAddress LocalSubnet
+          $wide | Set-NetFirewallRule -Profile Private -RemoteAddress $firewallPolicy.LanRemote
           Write-Host "Docker 허용 규칙 $($wide.Count)개를 '개인 네트워크 + 로컬 서브넷'으로 좁혔습니다."
         } else {
           Write-Warning ("Docker 허용 규칙 $($wide.Count)개가 공용/모든 주소에 열려 있습니다. 위 Sugo 차단 규칙 덕분에 Sugo 포트는 막히지만, " +
