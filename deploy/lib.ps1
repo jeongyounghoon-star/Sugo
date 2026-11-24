@@ -221,7 +221,9 @@ function Get-SugoFirewallPolicy {
       "128.0.0.0-169.253.255.255", "169.255.0.0-172.15.255.255", "172.32.0.0-192.167.255.255",
       "192.169.0.0-223.255.255.255", "2000::/3"
     )
-    $profileBlockRemote = @("0.0.0.0-100.63.255.255", "100.128.0.0-255.255.255.255", "::/0")
+    # Windows Firewall rejects an IPv6 prefix length of 0 ("::/0": "One or more of the address prefixes is
+    # invalid"), so "all IPv6" is written as an explicit range.
+    $profileBlockRemote = @("0.0.0.0-100.63.255.255", "100.128.0.0-255.255.255.255", "::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
   } else {
     # 100.64.0.0/10 is not a LAN range. It is blocked unless Tailscale is explicitly enabled.
     $nonLan = @(
@@ -231,9 +233,70 @@ function Get-SugoFirewallPolicy {
     )
     $profileBlockRemote = @()
   }
+  # Every -RemoteAddress list used by setup.ps1's firewall step comes from here, so
+  # security-tests.ps1 can validate all of them.
   return [pscustomobject]@{
+    LanRemote = @("LocalSubnet")
+    TailscaleRemote = @("100.64.0.0/10")
     NonLanRanges = $nonLan
     ProfileBlockRemote = $profileBlockRemote
     TailscaleAllowed = [bool]$AllowTailscale
   }
+}
+
+# Firewall address lists used by setup.ps1 (property name -> list), for both policy variants.
+function Get-SugoFirewallAddressLists {
+  $lists = [ordered]@{}
+  foreach ($ts in $false, $true) {
+    $p = Get-SugoFirewallPolicy -AllowTailscale:$ts
+    foreach ($name in "LanRemote", "TailscaleRemote", "NonLanRanges", "ProfileBlockRemote") {
+      if (@($p.$name).Count -gt 0) { $lists["$name (AllowTailscale=$ts)"] = @($p.$name) }
+    }
+  }
+  return $lists
+}
+
+# Offline format check for a Windows Firewall address entry (no admin, any OS). Mirrors what
+# FirewallAPI accepts: keywords, single IPs, "a-b" ranges of one family with a <= b, and
+# CIDR subnets with no host bits and a non-zero prefix (IPv6 "::/0" is rejected by Windows).
+function Test-SugoFirewallAddress {
+  param([string]$Address)
+  $keywords = "Any", "LocalSubnet", "LocalSubnet4", "LocalSubnet6", "DNS", "DHCP", "WINS", "DefaultGateway",
+    "Internet", "Intranet", "IntranetRemoteAccess", "PlayToDevice"
+  if ([string]::IsNullOrWhiteSpace($Address) -or $Address -ne $Address.Trim() -or $Address.Contains(",")) { return $false }
+  if ($keywords -contains $Address) { return $true }
+  $toBytes = {
+    param([string]$s)
+    $ip = $null
+    if (-not [System.Net.IPAddress]::TryParse($s, [ref]$ip)) { return $null }
+    if ($ip.AddressFamily -eq "InterNetworkV6" -and $ip.ScopeId -ne 0) { return $null }
+    # Reject shorthand such as "10.1" that TryParse accepts.
+    if ($ip.AddressFamily -eq "InterNetwork" -and $s -notmatch '^\d{1,3}(\.\d{1,3}){3}$') { return $null }
+    return , $ip.GetAddressBytes()
+  }
+  $compare = {
+    param([byte[]]$a, [byte[]]$b)
+    for ($i = 0; $i -lt $a.Length; $i++) { if ($a[$i] -ne $b[$i]) { return [int]$a[$i] - [int]$b[$i] } }
+    return 0
+  }
+  if ($Address.Contains("-")) {
+    $parts = $Address.Split("-")
+    if ($parts.Count -ne 2) { return $false }
+    $lo = & $toBytes $parts[0]; $hi = & $toBytes $parts[1]
+    if ($null -eq $lo -or $null -eq $hi -or $lo.Length -ne $hi.Length) { return $false }
+    return ((& $compare $lo $hi) -le 0)
+  }
+  if ($Address.Contains("/")) {
+    $parts = $Address.Split("/")
+    if ($parts.Count -ne 2 -or $parts[1] -notmatch '^\d{1,3}$') { return $false }
+    $net = & $toBytes $parts[0]
+    if ($null -eq $net) { return $false }
+    $len = [int]$parts[1]
+    if ($len -lt 1 -or $len -gt ($net.Length * 8)) { return $false }
+    for ($bit = $len; $bit -lt $net.Length * 8; $bit++) {
+      if ($net[[math]::Floor($bit / 8)] -band (0x80 -shr ($bit % 8))) { return $false }
+    }
+    return $true
+  }
+  return ($null -ne (& $toBytes $Address))
 }

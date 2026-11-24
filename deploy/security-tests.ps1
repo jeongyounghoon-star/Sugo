@@ -60,6 +60,92 @@ Assert-True (($defaultFirewall.NonLanRanges -join ",").Contains("11.0.0.0-126.25
 Assert-True (($tailscaleFirewall.NonLanRanges -join ",").Contains("100.128.0.0-126.255.255.255")) "Tailscale policy did not carve out 100.64.0.0/10"
 Assert-True $tailscaleFirewall.TailscaleAllowed "Tailscale opt-in was not recorded"
 
+# The offline address validator itself must reject the formats Windows Firewall refuses.
+foreach ($bad in @("::/0", "0.0.0.0/0", "10.0.0.1/8", "2000::1/3", "", " ", "1.2.3.4,5.6.7.8", "10.1", "9.0.0.0-1.0.0.0",
+    "1.2.3.4-::1", "1.2.3.4/33", "fe80::1%3", "LocalSubnet/24", "100.64.0.0/", "nope")) {
+  Assert-True (-not (Test-SugoFirewallAddress $bad)) "firewall address validator accepted invalid '$bad'"
+}
+foreach ($good in @("LocalSubnet", "100.64.0.0/10", "2000::/3", "0.0.0.0-9.255.255.255", "::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", "192.168.1.10")) {
+  Assert-True (Test-SugoFirewallAddress $good) "firewall address validator rejected valid '$good'"
+}
+
+# Every address list setup.ps1 passes to New-/Set-NetFirewallRule must be valid for Windows Firewall
+# ("::/0" made New-NetFirewallRule fail with "One or more of the address prefixes is invalid").
+$firewallLists = Get-SugoFirewallAddressLists
+Assert-True ($firewallLists.Count -ge 6) "expected firewall address lists for both policy variants"
+foreach ($key in $firewallLists.Keys) {
+  $list = @($firewallLists[$key])
+  Assert-True ($list.Count -gt 0) "firewall address list $key is empty"
+  foreach ($entry in $list) {
+    Assert-True ($entry -is [string]) "firewall address list $key contains a non-string entry"
+    Assert-True (Test-SugoFirewallAddress $entry) "firewall address list $key has an address Windows Firewall rejects: '$entry'"
+  }
+}
+
+# On Windows without admin rights, ask FirewallAPI itself: INetFwRules.Add validates addresses before the
+# access check, so a valid list fails only with E_ACCESSDENIED and an invalid one with E_INVALIDARG.
+# Skipped as admin (Add would really create the rule) and off Windows.
+$isWindowsHost = [System.Environment]::OSVersion.Platform -eq "Win32NT"
+$isAdmin = $false
+if ($isWindowsHost) {
+  $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+    [Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+if ($isWindowsHost -and -not $isAdmin) {
+  $fwPolicy = New-Object -ComObject HNetCfg.FwPolicy2
+  $checkWithFirewallApi = {
+    param([string]$Label, [string[]]$Addresses)
+    $rule = New-Object -ComObject HNetCfg.FWRule
+    $rule.Name = "sugo-security-test-address-check"
+    $rule.Enabled = $false
+    $rule.Direction = 1   # inbound
+    $rule.Action = 0      # block
+    $rule.Protocol = 6    # TCP
+    $rule.LocalPorts = "3000"
+    $added = $false
+    try {
+      $rule.RemoteAddresses = ($Addresses -join ",")
+      $fwPolicy.Rules.Add($rule)
+      $added = $true
+    } catch {
+      $hr = $_.Exception.HResult
+      if ($hr -eq -2147024891) { return }  # 0x80070005 E_ACCESSDENIED: addresses passed validation
+      throw ("FirewallAPI rejected {0} (0x{1:X8}): {2}" -f $Label, $hr, $_.Exception.Message)
+    }
+    if ($added) {
+      $fwPolicy.Rules.Remove($rule.Name)
+      throw "FirewallAPI unexpectedly added the test rule without admin rights"
+    }
+  }
+  & $checkWithFirewallApi "known-good probe" @("100.64.0.0/10")
+  $probeRejected = $false
+  try { & $checkWithFirewallApi "probe" @("::/0") } catch { $probeRejected = $_.Exception.Message -like "FirewallAPI rejected*" }
+  Assert-True $probeRejected "FirewallAPI probe did not reject '::/0'; the live address check is not working"
+  foreach ($key in $firewallLists.Keys) { & $checkWithFirewallApi $key @($firewallLists[$key]) }
+  Write-Host "firewall address lists validated by FirewallAPI"
+}
+
+# setup.ps1 must take every firewall address list from the policy object (covered above), never a literal.
+$setupFwAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot "setup.ps1"), [ref]$null, [ref]$null)
+$fwCommands = @($setupFwAst.FindAll({
+      param($n)
+      $n -is [System.Management.Automation.Language.CommandAst] -and $n.GetCommandName() -match '^(New|Set)-NetFirewallRule$'
+    }, $true))
+Assert-True ($fwCommands.Count -ge 5) "expected the firewall rule commands in setup.ps1"
+foreach ($cmd in $fwCommands) {
+  $elements = $cmd.CommandElements
+  for ($i = 0; $i -lt $elements.Count; $i++) {
+    $el = $elements[$i]
+    if ($el -is [System.Management.Automation.Language.CommandParameterAst] -and $el.ParameterName -match '^(Remote|Local)Address$') {
+      $arg = if ($el.Argument) { $el.Argument } else { $elements[$i + 1] }
+      $ok = $arg -is [System.Management.Automation.Language.MemberExpressionAst] -and
+        $arg.Expression.Extent.Text -eq '$firewallPolicy' -and
+        @("LanRemote", "TailscaleRemote", "NonLanRanges", "ProfileBlockRemote") -contains $arg.Member.Extent.Text
+      Assert-True $ok "setup.ps1:$($el.Extent.StartLineNumber) -$($el.ParameterName) must use a `$firewallPolicy list, got '$($arg.Extent.Text)'"
+    }
+  }
+}
+
 # setup.ps1 must require explicit switches for both sensitive behavior changes.
 $setupText = Get-Content -LiteralPath (Join-Path $PSScriptRoot "setup.ps1") -Raw
 Assert-True ($setupText -match '\[switch\]\$OverwriteEnv') "setup.ps1 has no explicit .env overwrite switch"
