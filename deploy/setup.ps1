@@ -151,17 +151,19 @@ if (-not $SkipFirewall) {
     Write-Warning "관리자 권한이 아니라서 방화벽 규칙을 건너뜁니다. 관리자 PowerShell 에서 다시 실행하세요."
   } else {
     $allow = "Sugo web (LAN only)"
-    $allowTailscale = "Sugo web (Tailscale only)"
+    # PowerShell 변수 이름은 대소문자를 구분하지 않는다. [switch]$AllowTailscale 과 같은 이름에 문자열을 넣으면
+    # "부울 매개 변수는 부울 값과 숫자만 허용합니다" 오류가 나므로 다른 이름을 쓴다.
+    $tailscaleRule = "Sugo web (Tailscale only)"
     $blockProfile = "Sugo web block (public/domain networks)"
     $blockRemote = "Sugo web block (non-LAN addresses)"
-    foreach ($n in @($allow, $allowTailscale, $blockProfile, $blockRemote)) {
+    foreach ($n in @($allow, $tailscaleRule,$blockProfile, $blockRemote)) {
       Get-NetFirewallRule -DisplayName $n -ErrorAction SilentlyContinue | Remove-NetFirewallRule
     }
     New-NetFirewallRule -DisplayName $allow -Direction Inbound -Action Allow -Protocol TCP `
       -LocalPort $Port -Profile Private -RemoteAddress LocalSubnet | Out-Null
     # 허용 규칙은 OR 로 합쳐지므로, 다른 허용 규칙(Docker 프로그램 규칙 등)이 있어도 막히도록 "차단" 규칙을 둔다.
     if ($AllowTailscale) {
-      New-NetFirewallRule -DisplayName $allowTailscale -Direction Inbound -Action Allow -Protocol TCP `
+      New-NetFirewallRule -DisplayName $tailscaleRule -Direction Inbound -Action Allow -Protocol TCP `
         -LocalPort $Port -Profile Any -RemoteAddress "100.64.0.0/10" | Out-Null
       # Block every non-Tailscale address on Public/Domain profiles. Windows block rules override allow rules.
       New-NetFirewallRule -DisplayName $blockProfile -Direction Inbound -Action Block -Protocol TCP `
@@ -173,7 +175,7 @@ if (-not $SkipFirewall) {
     New-NetFirewallRule -DisplayName $blockRemote -Direction Inbound -Action Block -Protocol TCP `
       -LocalPort $Port -Profile Any -RemoteAddress $NonLanRanges | Out-Null
     Write-Host "허용: '$allow' (TCP $Port, Private, LocalSubnet)"
-    if ($AllowTailscale) { Write-Host "추가 허용: '$allowTailscale' (TCP $Port, 100.64.0.0/10만; 공용 인터넷은 차단)" }
+    if ($AllowTailscale) { Write-Host "추가 허용: '$tailscaleRule' (TCP $Port, 100.64.0.0/10만; 공용 인터넷은 차단)" }
     Write-Host "차단: '$blockProfile' (공용/도메인 네트워크), '$blockRemote' (LAN 밖 주소)"
 
     $profiles = Get-NetConnectionProfile | Select-Object InterfaceAlias, NetworkCategory
