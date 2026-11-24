@@ -7,6 +7,6 @@
 #>
 param([string]$File = "")
 Set-Location (Split-Path -Parent $PSScriptRoot)
-if ($File -and ($File -notmatch '^sugo-\d{8}-\d{6}\.dump$')) { Write-Error "백업 파일 이름 형식이 아닙니다: $File"; exit 1 }
+if ($File -and ($File -notmatch '^sugo-(pre-)?\d{8}-\d{6}\.dump$')) { Write-Error "백업 파일 이름 형식이 아닙니다: $File"; exit 1 }
 if ($File) { docker compose exec -T backup sh /restore-test.sh $File } else { docker compose exec -T backup sh /restore-test.sh }
 exit $LASTEXITCODE

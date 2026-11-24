@@ -21,13 +21,19 @@ x-postgres-image: &postgres-image postgres:16.16-alpine3.24@sha256:f2f98726820d0
 services:
   web:
     <<: *hardening
-    image: ${SUGO_IMAGE:-ghcr.io/jeongyounghoon-star/sugo:latest}
+    # deploy/update.ps1 이 서명을 확인한 이미지의 digest(ghcr.io/...@sha256:...)를 .env 에 고정한다.
+    # 값이 없으면 일부러 받을 수 없는 이름이라 검증 안 된 이미지가 실행되지 않는다.
+    image: ${SUGO_IMAGE:-invalid.local/sugo-not-verified-run-deploy-update-ps1:none}
     depends_on:
       db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://sugo:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 를 .env 에 설정하세요 (deploy/setup.ps1)}@db:5432/sugo
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-}
+      # PIN 해시에 섞는 비밀값 (DB/백업만으로는 PIN을 풀 수 없게). setup.ps1 이 생성.
+      PIN_PEPPER: ${PIN_PEPPER:-}
+      # 처음 부모 PIN을 만들 때 필요한 설치 코드. setup.ps1 이 생성해 화면에 보여 준다.
+      SETUP_CODE: ${SETUP_CODE:-}
     # 웹만 LAN에 노출. 외부 공개는 하지 않는다 (공유기 포트포워딩/UPnP 금지, 방화벽은 로컬 서브넷만).
     ports:
       - "${WEB_BIND:-0.0.0.0}:${WEB_PORT:-3000}:3000"
@@ -75,11 +81,10 @@ services:
     <<: *hardening
     image: *postgres-image
     user: "70:70"
+    # web 에 의존하지 않는다: web 이 망가져도 백업은 계속 (첫 백업은 backup.sh 가 테이블이 생길 때까지 기다림)
     depends_on:
       db:
         condition: service_healthy
-      web:
-        condition: service_healthy # web 이 마이그레이션을 끝낸 뒤 첫 백업
     entrypoint: ["/bin/sh", "/backup.sh"]
     environment:
       PGHOST: db
@@ -87,6 +92,7 @@ services:
       PGDATABASE: sugo
       PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 를 .env 에 설정하세요}
       BACKUP_KEEP: ${BACKUP_KEEP:-14}
+      BACKUP_PRE_KEEP: ${BACKUP_PRE_KEEP:-5}
       BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
     volumes:
       - ./deploy/backup.sh:/backup.sh:ro

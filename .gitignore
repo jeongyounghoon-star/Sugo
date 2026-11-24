@@ -51,3 +51,4 @@ __pycache__/
 # deploy (집 PC)
 /backups/
 /logs/
+/maintenance.lock

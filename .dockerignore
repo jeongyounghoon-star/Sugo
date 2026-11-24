@@ -13,3 +13,4 @@ coverage
 *.log
 .omc
 scripts/gen-audio/__pycache__
+maintenance.lock
