@@ -1,0 +1,921 @@
+{
+  "voice": "ko-KR-SunHiNeural",
+  "outDir": "public/audio/hangul",
+  "targets": [
+    {
+      "id": "v_a",
+      "text": "아",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_eo",
+      "text": "어",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_o",
+      "text": "오",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_u",
+      "text": "우",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_eu",
+      "text": "으",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_i",
+      "text": "이",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_ya",
+      "text": "야",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_yeo",
+      "text": "여",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_yo",
+      "text": "요",
+      "rate": "-25%"
+    },
+    {
+      "id": "v_yu",
+      "text": "유",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_g_name",
+      "text": "기역",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_g_sound",
+      "text": "그",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_n_name",
+      "text": "니은",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_n_sound",
+      "text": "느",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_d_name",
+      "text": "디귿",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_d_sound",
+      "text": "드",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_r_name",
+      "text": "리을",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_r_sound",
+      "text": "르",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_m_name",
+      "text": "미음",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_m_sound",
+      "text": "므",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_b_name",
+      "text": "비읍",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_b_sound",
+      "text": "브",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_s_name",
+      "text": "시옷",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_s_sound",
+      "text": "스",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_ng_name",
+      "text": "이응",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_ng_sound",
+      "text": "으",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_j_name",
+      "text": "지읒",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_j_sound",
+      "text": "즈",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_ch_name",
+      "text": "치읓",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_ch_sound",
+      "text": "츠",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_k_name",
+      "text": "키읔",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_k_sound",
+      "text": "크",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_t_name",
+      "text": "티읕",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_t_sound",
+      "text": "트",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_p_name",
+      "text": "피읖",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_p_sound",
+      "text": "프",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_h_name",
+      "text": "히읗",
+      "rate": "-25%"
+    },
+    {
+      "id": "c_h_sound",
+      "text": "흐",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ac00",
+      "text": "가",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ac70",
+      "text": "거",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ace0",
+      "text": "고",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ad6c",
+      "text": "구",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_adf8",
+      "text": "그",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ae30",
+      "text": "기",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ac38",
+      "text": "갸",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_aca8",
+      "text": "겨",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ad50",
+      "text": "교",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_addc",
+      "text": "규",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b098",
+      "text": "나",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b108",
+      "text": "너",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b178",
+      "text": "노",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b204",
+      "text": "누",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b290",
+      "text": "느",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b2c8",
+      "text": "니",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b0d0",
+      "text": "냐",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b140",
+      "text": "녀",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b1e8",
+      "text": "뇨",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b274",
+      "text": "뉴",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b2e4",
+      "text": "다",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b354",
+      "text": "더",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b3c4",
+      "text": "도",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b450",
+      "text": "두",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b4dc",
+      "text": "드",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b514",
+      "text": "디",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b31c",
+      "text": "댜",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b38c",
+      "text": "뎌",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b434",
+      "text": "됴",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b4c0",
+      "text": "듀",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b77c",
+      "text": "라",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b7ec",
+      "text": "러",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b85c",
+      "text": "로",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b8e8",
+      "text": "루",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b974",
+      "text": "르",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b9ac",
+      "text": "리",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b7b4",
+      "text": "랴",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b824",
+      "text": "려",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b8cc",
+      "text": "료",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b958",
+      "text": "류",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_b9c8",
+      "text": "마",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ba38",
+      "text": "머",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_baa8",
+      "text": "모",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bb34",
+      "text": "무",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bbc0",
+      "text": "므",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bbf8",
+      "text": "미",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ba00",
+      "text": "먀",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_ba70",
+      "text": "며",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bb18",
+      "text": "묘",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bba4",
+      "text": "뮤",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bc14",
+      "text": "바",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bc84",
+      "text": "버",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bcf4",
+      "text": "보",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bd80",
+      "text": "부",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_be0c",
+      "text": "브",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_be44",
+      "text": "비",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bc4c",
+      "text": "뱌",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bcbc",
+      "text": "벼",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bd64",
+      "text": "뵤",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_bdf0",
+      "text": "뷰",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c0ac",
+      "text": "사",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c11c",
+      "text": "서",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c18c",
+      "text": "소",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c218",
+      "text": "수",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c2a4",
+      "text": "스",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c2dc",
+      "text": "시",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c0e4",
+      "text": "샤",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c154",
+      "text": "셔",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c1fc",
+      "text": "쇼",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c288",
+      "text": "슈",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c544",
+      "text": "아",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c5b4",
+      "text": "어",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c624",
+      "text": "오",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c6b0",
+      "text": "우",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c73c",
+      "text": "으",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c774",
+      "text": "이",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c57c",
+      "text": "야",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c5ec",
+      "text": "여",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c694",
+      "text": "요",
+      "rate": "-25%"
+    },
+    {
+      "id": "syl_c720",
+      "text": "유",
+      "rate": "-25%"
+    },
+    {
+      "id": "w_agi",
+      "text": "아기",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_eomuk",
+      "text": "어묵",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_oi",
+      "text": "오이",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_uyu",
+      "text": "우유",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_i",
+      "text": "이",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_yagu",
+      "text": "야구",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_yeou",
+      "text": "여우",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_yoyo",
+      "text": "요요",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_yuryeong",
+      "text": "유령",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_girin",
+      "text": "기린",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_geomi",
+      "text": "거미",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_nabi",
+      "text": "나비",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_namu",
+      "text": "나무",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_danggeun",
+      "text": "당근",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_daramjwi",
+      "text": "다람쥐",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_ramyeon",
+      "text": "라면",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_robot",
+      "text": "로봇",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_moja",
+      "text": "모자",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_mal",
+      "text": "말",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_banana",
+      "text": "바나나",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_beoseu",
+      "text": "버스",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_saja",
+      "text": "사자",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_sagwa",
+      "text": "사과",
+      "rate": "-15%"
+    },
+    {
+      "id": "w_ori",
+      "text": "오리",
+      "rate": "-15%"
+    },
+    {
+      "id": "p_world_1",
+      "text": "모음 숲",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_2",
+      "text": "자음 마을 하나",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_3",
+      "text": "자음 마을 둘",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_4",
+      "text": "글자 공장",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_5",
+      "text": "낱말 바다",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_6",
+      "text": "받침 산",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_7",
+      "text": "반짝 섬",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_8",
+      "text": "이야기 성",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_porong",
+      "text": "포롱!",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_dodam",
+      "text": "도담!",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_mallang",
+      "text": "말랑!",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_ttukttak",
+      "text": "뚝딱!",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_challang",
+      "text": "찰랑!",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_dandan",
+      "text": "단단!",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_banjjak",
+      "text": "반짝!",
+      "rate": "-5%"
+    },
+    {
+      "id": "pet_duru",
+      "text": "두루!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_hangul_title",
+      "text": "한글 모험!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_map_welcome",
+      "text": "한글 모험에 온 걸 환영해! 반짝이는 곳을 눌러 봐.",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_locked",
+      "text": "아직 잠겨 있어. 앞의 모험을 먼저 끝내 보자!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_coming_soon",
+      "text": "이곳은 곧 열려. 조금만 기다려 줘!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_stage_pick",
+      "text": "반짝이는 동그라미를 눌러서 놀이를 시작해 봐!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_intro",
+      "text": "새로운 글자를 만나 보자! 글자를 눌러서 소리를 들어 봐.",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_balloon",
+      "text": "소리를 잘 듣고, 맞는 글자 풍선을 터뜨려 봐!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_block",
+      "text": "소리를 잘 듣고, 블록을 붙여서 글자를 만들어 봐!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_match",
+      "text": "그림과 맞는 글자를 짝지어 봐!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_review",
+      "text": "지난번에 헷갈렸던 글자야. 다시 해 보자!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_correct_1",
+      "text": "잘했어!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_correct_2",
+      "text": "맞았어!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_correct_3",
+      "text": "최고야!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_correct_4",
+      "text": "멋져!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_wrong_1",
+      "text": "괜찮아, 다시 해 보자!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_wrong_2",
+      "text": "다시 한번 잘 들어 볼까?",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_stage_clear_3",
+      "text": "와, 별 세 개! 정말 대단해! 다음 놀이가 열렸어!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_stage_clear_low",
+      "text": "잘했어! 한 번 더 하면 별을 더 모을 수 있어!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_sticker",
+      "text": "새 스티커를 받았어!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_pet_hatch",
+      "text": "알에서 아기 펫이 태어났어!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_world_clear",
+      "text": "모험 완료! 펫이 멋지게 진화했어!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_daily_done",
+      "text": "오늘 끝! 정말 잘했어. 내일 또 만나자!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_pets",
+      "text": "내 펫과 스티커를 구경해 봐!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_profile_pick",
+      "text": "누구랑 놀까? 내 펫을 눌러 줘!",
+      "rate": "-5%"
+    },
+    {
+      "id": "p_profile_new",
+      "text": "새 친구를 만들어 볼까? 마음에 드는 펫을 골라 줘!",
+      "rate": "-5%"
+    }
+  ]
+}

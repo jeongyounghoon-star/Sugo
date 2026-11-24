@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#ffcf5c"/>
+  <ellipse cx="256" cy="430" rx="150" ry="26" fill="#000" opacity=".08"/>
+  <path d="M256 92c-96 0-162 84-162 182 0 92 70 150 162 150s162-58 162-150c0-98-66-182-162-182z" fill="#8bd46e"/>
+  <ellipse cx="256" cy="320" rx="96" ry="82" fill="#d9f5c8"/>
+  <path d="M256 96c-6-34 10-62 40-72-2 32-14 56-40 72z" fill="#3f9b2c"/>
+  <path d="M252 98c-22-26-52-30-76-18 18 22 46 28 76 18z" fill="#5fbf45"/>
+  <circle cx="206" cy="232" r="26" fill="#2d2a32"/>
+  <circle cx="306" cy="232" r="26" fill="#2d2a32"/>
+  <circle cx="215" cy="222" r="9" fill="#fff"/>
+  <circle cx="315" cy="222" r="9" fill="#fff"/>
+  <ellipse cx="170" cy="278" rx="22" ry="13" fill="#ff8fa3" opacity=".6"/>
+  <ellipse cx="342" cy="278" rx="22" ry="13" fill="#ff8fa3" opacity=".6"/>
+  <path d="M232 276q24 22 48 0" stroke="#2d2a32" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <text x="256" y="384" text-anchor="middle" font-family="Malgun Gothic, Apple SD Gothic Neo, sans-serif" font-weight="700" font-size="88" fill="#3f9b2c">가</text>
+</svg>

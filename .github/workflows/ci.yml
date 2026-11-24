@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# 기본 권한 없음. 각 job 이 필요한 것만 연다.
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint / typecheck / test / build / audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: npm audit (high 이상이면 실패)
+        run: npm audit --audit-level=high
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm test
+      - name: Build
+        run: npm run build
+
+  secrets:
+    name: secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks (전체 git 기록)
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" \
+            ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            git /repo --redact --verbose --exit-code 1
+
+  compose-smoke:
+    name: docker compose smoke test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build image
+        run: docker build -t sugo:ci .
+      - name: Start stack (실제 docker-compose.yml, 운영과 같은 보안 설정)
+        run: |
+          umask 077
+          printf 'POSTGRES_PASSWORD=%s\nPIN_PEPPER=%s\nSETUP_CODE=%s\nSUGO_IMAGE=sugo:ci\nWEB_PORT=3000\n' \
+            "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" "$(shuf -i 10000000-99999999 -n 1)" > .env
+          mkdir -p backups && chmod 777 backups
+          docker compose up -d --wait --wait-timeout 180
+      - name: Smoke test
+        run: SETUP_CODE="$(grep '^SETUP_CODE=' .env | cut -d= -f2)" bash scripts/smoke-test.sh http://localhost:3000
+      - name: Logs
+        if: always()
+        run: docker compose logs --no-color | grep -v -e POSTGRES_PASSWORD -e PIN_PEPPER -e SETUP_CODE | tail -n 200
+      - name: Down
+        if: always()
+        run: docker compose down -v
+
+  deploy-scripts:
+    name: deploy scripts (signature-gated update / restore)
+    runs-on: ubuntu-latest
+    # 포크 PR 에는 OIDC 토큰이 없어서 서명 테스트를 할 수 없다
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      id-token: write # 로컬 레지스트리의 테스트 이미지를 keyless 로 서명하는 데만 사용 (GHCR 에는 푸시하지 않음)
+    env:
+      REPO: localhost:5000/sugo
+      # 테스트용: cosign 컨테이너가 로컬 레지스트리에 닿도록
+      SUGO_COSIGN_DOCKER_ARGS: --network host
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+        with:
+          cosign-release: v3.1.4
+      - name: Local registry + unsigned image
+        run: |
+          docker run -d --name registry -p 127.0.0.1:5000:5000 \
+            registry:3.0.0@sha256:6c5666b861f3505b116bb9aa9b25175e71210414bd010d92035ff64018f9457e
+          docker build -t "$REPO:latest" .
+          docker push "$REPO:latest"
+          umask 077
+          printf 'POSTGRES_PASSWORD=%s\nPIN_PEPPER=%s\nSETUP_CODE=12345678\nWEB_PORT=3000\nSUGO_IMAGE_REPO=%s\nSUGO_IMAGE=\n' \
+            "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" "$REPO" > .env
+          mkdir -p backups logs && chmod 777 backups
+      - name: Unsigned image is refused and nothing starts
+        shell: pwsh
+        run: |
+          . ./deploy/lib.ps1
+          ./deploy/update.ps1 -Initial
+          if ($LASTEXITCODE -eq 0) { throw "unsigned image was accepted" }
+          if (-not (Select-String -Path logs/update.log -Pattern 'REFUSED' -Quiet)) { throw "no REFUSED line in update.log" }
+          if ((Read-EnvFile .env)["SUGO_IMAGE"]) { throw ".env was changed" }
+          if (Get-ServiceContainer web) { throw "web was started" }
+          exit 0
+      - name: Sign the test image (identity = this CI workflow, not docker.yml)
+        run: |
+          digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "$REPO:latest" | cut -d@ -f2)"
+          cosign sign --yes "$REPO@$digest"
+      - name: Signed by the wrong workflow is still refused (PC only trusts docker.yml on main)
+        shell: pwsh
+        run: |
+          ./deploy/update.ps1 -Initial
+          if ($LASTEXITCODE -eq 0) { throw "image signed by ci.yml was accepted with the production identity" }
+          exit 0
+      - name: Signed image (test identity) is pinned by digest and started
+        shell: pwsh
+        env:
+          SUGO_SIGNER_IDENTITY_REGEX: ^https://github\.com/${{ github.repository }}/\.github/workflows/ci\.yml@refs/
+        run: |
+          . ./deploy/lib.ps1
+          ./deploy/update.ps1 -Initial
+          if ($LASTEXITCODE -ne 0) { Get-Content logs/update.log; throw "update failed" }
+          $pinned = (Read-EnvFile .env)["SUGO_IMAGE"]
+          if (-not (Test-ImageRef $pinned) -or -not $pinned.StartsWith("$($env:REPO)@sha256:")) { throw "not pinned: $pinned" }
+          curl -fsS http://localhost:3000/api/health
+          ./deploy/update.ps1
+          if (-not (Select-String -Path logs/update.log -Pattern 'no change' -Quiet)) { throw "second run should be no change" }
+          exit 0
+      - name: New signed image -> pre-update backup -> update
+        shell: pwsh
+        env:
+          SUGO_SIGNER_IDENTITY_REGEX: ^https://github\.com/${{ github.repository }}/\.github/workflows/ci\.yml@refs/
+        run: |
+          . ./deploy/lib.ps1
+          $before = (Read-EnvFile .env)["SUGO_IMAGE"]
+          docker build --label sugo.ci.rev=2 -t "$($env:REPO):latest" .
+          docker push "$($env:REPO):latest"
+          $digest = ((docker image inspect --format '{{index .RepoDigests 0}}' "$($env:REPO):latest") -split '@')[1]
+          cosign sign --yes "$($env:REPO)@$digest"
+          ./deploy/update.ps1
+          if ($LASTEXITCODE -ne 0) { Get-Content logs/update.log; throw "update failed" }
+          $after = (Read-EnvFile .env)["SUGO_IMAGE"]
+          if ($after -eq $before -or -not $after.EndsWith($digest)) { throw "not updated: $before -> $after" }
+          if (-not (Get-ChildItem backups -Filter 'sugo-pre-*.dump')) { throw "no pre-update backup" }
+          exit 0
+      - name: maintenance.lock pauses updates; restore.ps1 restores in one transaction
+        shell: pwsh
+        run: |
+          . ./deploy/lib.ps1
+          New-Item maintenance.lock -ItemType File | Out-Null
+          ./deploy/update.ps1
+          Remove-Item maintenance.lock
+          if (-not (Select-String -Path logs/update.log -Pattern 'maintenance.lock present' -Quiet)) { throw "update ran during maintenance" }
+          for ($i = 0; $i -lt 30 -and -not (Get-ChildItem backups -Filter 'sugo-2*.dump'); $i++) { Start-Sleep 2 }
+          $daily = Get-ChildItem backups -Filter 'sugo-2*.dump' | Sort-Object LastWriteTime | Select-Object -Last 1
+          if (-not $daily) { throw "no daily backup" }
+          ./deploy/restore.ps1 -File $daily.Name -Force
+          if ($LASTEXITCODE -ne 0) { throw "restore failed" }
+          if (Test-Path maintenance.lock) { throw "maintenance.lock left behind" }
+          if (-not (Wait-WebHealthy -TimeoutSeconds 120)) { throw "web not healthy after restore" }
+          exit 0
+      - name: Logs
+        if: always()
+        run: |
+          cat logs/update.log || true
+          docker compose logs --no-color | grep -v -e POSTGRES_PASSWORD -e PIN_PEPPER -e SETUP_CODE | tail -n 100
+      - name: Down
+        if: always()
+        run: docker compose down -v

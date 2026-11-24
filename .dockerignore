@@ -1,0 +1,16 @@
+.git
+.github
+.next
+node_modules
+.env
+.env.*
+!.env.example
+backups
+logs
+docs
+tests
+coverage
+*.log
+.omc
+scripts/gen-audio/__pycache__
+maintenance.lock

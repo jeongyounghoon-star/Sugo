@@ -1,0 +1,1100 @@
+{
+  "c_b_name": {
+    "text": "비읍",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_b_sound": {
+    "text": "브",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_ch_name": {
+    "text": "치읓",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_ch_sound": {
+    "text": "츠",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_d_name": {
+    "text": "디귿",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_d_sound": {
+    "text": "드",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_g_name": {
+    "text": "기역",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_g_sound": {
+    "text": "그",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_h_name": {
+    "text": "히읗",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_h_sound": {
+    "text": "흐",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_j_name": {
+    "text": "지읒",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_j_sound": {
+    "text": "즈",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_k_name": {
+    "text": "키읔",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_k_sound": {
+    "text": "크",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_m_name": {
+    "text": "미음",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_m_sound": {
+    "text": "므",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_n_name": {
+    "text": "니은",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_n_sound": {
+    "text": "느",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_ng_name": {
+    "text": "이응",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_ng_sound": {
+    "text": "으",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_p_name": {
+    "text": "피읖",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_p_sound": {
+    "text": "프",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_r_name": {
+    "text": "리을",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_r_sound": {
+    "text": "르",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_s_name": {
+    "text": "시옷",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_s_sound": {
+    "text": "스",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_t_name": {
+    "text": "티읕",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "c_t_sound": {
+    "text": "트",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "p_balloon": {
+    "text": "소리를 잘 듣고, 맞는 글자 풍선을 터뜨려 봐!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_block": {
+    "text": "소리를 잘 듣고, 블록을 붙여서 글자를 만들어 봐!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_coming_soon": {
+    "text": "이곳은 곧 열려. 조금만 기다려 줘!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_correct_1": {
+    "text": "잘했어!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_correct_2": {
+    "text": "맞았어!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_correct_3": {
+    "text": "최고야!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_correct_4": {
+    "text": "멋져!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_daily_done": {
+    "text": "오늘 끝! 정말 잘했어. 내일 또 만나자!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_hangul_title": {
+    "text": "한글 모험!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_intro": {
+    "text": "새로운 글자를 만나 보자! 글자를 눌러서 소리를 들어 봐.",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_locked": {
+    "text": "아직 잠겨 있어. 앞의 모험을 먼저 끝내 보자!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_map_welcome": {
+    "text": "한글 모험에 온 걸 환영해! 반짝이는 곳을 눌러 봐.",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_match": {
+    "text": "그림과 맞는 글자를 짝지어 봐!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_pet_hatch": {
+    "text": "알에서 아기 펫이 태어났어!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_pets": {
+    "text": "내 펫과 스티커를 구경해 봐!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_profile_new": {
+    "text": "새 친구를 만들어 볼까? 마음에 드는 펫을 골라 줘!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_profile_pick": {
+    "text": "누구랑 놀까? 내 펫을 눌러 줘!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_review": {
+    "text": "지난번에 헷갈렸던 글자야. 다시 해 보자!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_stage_clear_3": {
+    "text": "와, 별 세 개! 정말 대단해! 다음 놀이가 열렸어!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_stage_clear_low": {
+    "text": "잘했어! 한 번 더 하면 별을 더 모을 수 있어!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_stage_pick": {
+    "text": "반짝이는 동그라미를 눌러서 놀이를 시작해 봐!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_sticker": {
+    "text": "새 스티커를 받았어!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_1": {
+    "text": "모음 숲",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_2": {
+    "text": "자음 마을 하나",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_3": {
+    "text": "자음 마을 둘",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_4": {
+    "text": "글자 공장",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_5": {
+    "text": "낱말 바다",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_6": {
+    "text": "받침 산",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_7": {
+    "text": "반짝 섬",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_8": {
+    "text": "이야기 성",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_world_clear": {
+    "text": "모험 완료! 펫이 멋지게 진화했어!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_wrong_1": {
+    "text": "괜찮아, 다시 해 보자!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "p_wrong_2": {
+    "text": "다시 한번 잘 들어 볼까?",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_banjjak": {
+    "text": "반짝!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_challang": {
+    "text": "찰랑!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_dandan": {
+    "text": "단단!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_dodam": {
+    "text": "도담!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_duru": {
+    "text": "두루!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_mallang": {
+    "text": "말랑!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_porong": {
+    "text": "포롱!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "pet_ttukttak": {
+    "text": "뚝딱!",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-5%",
+    "trim": true
+  },
+  "syl_ac00": {
+    "text": "가",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ac38": {
+    "text": "갸",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ac70": {
+    "text": "거",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_aca8": {
+    "text": "겨",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ace0": {
+    "text": "고",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ad50": {
+    "text": "교",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ad6c": {
+    "text": "구",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_addc": {
+    "text": "규",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_adf8": {
+    "text": "그",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ae30": {
+    "text": "기",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b098": {
+    "text": "나",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b0d0": {
+    "text": "냐",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b108": {
+    "text": "너",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b140": {
+    "text": "녀",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b178": {
+    "text": "노",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b1e8": {
+    "text": "뇨",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b204": {
+    "text": "누",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b274": {
+    "text": "뉴",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b290": {
+    "text": "느",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b2c8": {
+    "text": "니",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b2e4": {
+    "text": "다",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b31c": {
+    "text": "댜",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b354": {
+    "text": "더",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b38c": {
+    "text": "뎌",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b3c4": {
+    "text": "도",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b434": {
+    "text": "됴",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b450": {
+    "text": "두",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b4c0": {
+    "text": "듀",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b4dc": {
+    "text": "드",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b514": {
+    "text": "디",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b77c": {
+    "text": "라",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b7b4": {
+    "text": "랴",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b7ec": {
+    "text": "러",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b824": {
+    "text": "려",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b85c": {
+    "text": "로",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b8cc": {
+    "text": "료",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b8e8": {
+    "text": "루",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b958": {
+    "text": "류",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b974": {
+    "text": "르",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b9ac": {
+    "text": "리",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_b9c8": {
+    "text": "마",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ba00": {
+    "text": "먀",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ba38": {
+    "text": "머",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_ba70": {
+    "text": "며",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_baa8": {
+    "text": "모",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bb18": {
+    "text": "묘",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bb34": {
+    "text": "무",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bba4": {
+    "text": "뮤",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bbc0": {
+    "text": "므",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bbf8": {
+    "text": "미",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bc14": {
+    "text": "바",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bc4c": {
+    "text": "뱌",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bc84": {
+    "text": "버",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bcbc": {
+    "text": "벼",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bcf4": {
+    "text": "보",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bd64": {
+    "text": "뵤",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bd80": {
+    "text": "부",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_bdf0": {
+    "text": "뷰",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_be0c": {
+    "text": "브",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_be44": {
+    "text": "비",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c0ac": {
+    "text": "사",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c0e4": {
+    "text": "샤",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c11c": {
+    "text": "서",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c154": {
+    "text": "셔",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c18c": {
+    "text": "소",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c1fc": {
+    "text": "쇼",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c218": {
+    "text": "수",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c288": {
+    "text": "슈",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c2a4": {
+    "text": "스",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c2dc": {
+    "text": "시",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c544": {
+    "text": "아",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c57c": {
+    "text": "야",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c5b4": {
+    "text": "어",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c5ec": {
+    "text": "여",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c624": {
+    "text": "오",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c694": {
+    "text": "요",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c6b0": {
+    "text": "우",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c720": {
+    "text": "유",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c73c": {
+    "text": "으",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "syl_c774": {
+    "text": "이",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_a": {
+    "text": "아",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_eo": {
+    "text": "어",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_eu": {
+    "text": "으",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_i": {
+    "text": "이",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_o": {
+    "text": "오",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_u": {
+    "text": "우",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_ya": {
+    "text": "야",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_yeo": {
+    "text": "여",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_yo": {
+    "text": "요",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "v_yu": {
+    "text": "유",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-25%",
+    "trim": true
+  },
+  "w_agi": {
+    "text": "아기",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_banana": {
+    "text": "바나나",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_beoseu": {
+    "text": "버스",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_danggeun": {
+    "text": "당근",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_daramjwi": {
+    "text": "다람쥐",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_eomuk": {
+    "text": "어묵",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_geomi": {
+    "text": "거미",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_girin": {
+    "text": "기린",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_i": {
+    "text": "이",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_mal": {
+    "text": "말",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_moja": {
+    "text": "모자",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_nabi": {
+    "text": "나비",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_namu": {
+    "text": "나무",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_oi": {
+    "text": "오이",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_ori": {
+    "text": "오리",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_ramyeon": {
+    "text": "라면",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_robot": {
+    "text": "로봇",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_sagwa": {
+    "text": "사과",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_saja": {
+    "text": "사자",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_uyu": {
+    "text": "우유",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_yagu": {
+    "text": "야구",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_yeou": {
+    "text": "여우",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_yoyo": {
+    "text": "요요",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  },
+  "w_yuryeong": {
+    "text": "유령",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "-15%",
+    "trim": true
+  }
+}
