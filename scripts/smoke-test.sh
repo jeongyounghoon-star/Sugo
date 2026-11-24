@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
-# docker compose 로 띄운 Sugo 를 바깥에서 점검 (CI compose-smoke job 과 설치 후 점검에 사용)
-# 사용: bash scripts/smoke-test.sh http://localhost:3000
+# CI 전용: docker compose 로 띄운 **빈** Sugo 를 바깥에서 점검 (CI compose-smoke job).
+# ⚠️ 운영 PC 에서 실행하지 마세요: 테스트 프로필을 만들고 부모 PIN 을 정합니다.
+#    그래서 PIN 이 이미 있거나 프로필이 있는 서버에서는 아무것도 하지 않고 멈춥니다.
+#    설치 후 점검은 docs/security.md 의 체크리스트를 쓰세요.
+# 사용: SETUP_CODE=<.env 의 값> bash scripts/smoke-test.sh http://localhost:3000
 set -euo pipefail
 BASE="${1:-http://localhost:3000}"
+SETUP_CODE="${SETUP_CODE:-}"
+TEST_PIN="$(printf '%04d%04d' $((RANDOM % 10000)) $((RANDOM % 10000)))"
+TODAY="$(date -u +%Y-%m-%d)"
+NOW_MS="$(($(date -u +%s) * 1000))"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 ok() { echo "ok: $*"; }
+
+# 0. 빈 서버인지 확인 (운영 데이터에 손대지 않기)
+curl -fsS "$BASE/api/parent/pin" | grep -q '"isSet":false' || fail "parent PIN already set: refusing to run against a non-fresh server"
+curl -fsS "$BASE/api/profiles" | grep -q '"profiles":\[\]' || fail "profiles exist: refusing to run against a non-fresh server"
 
 # 1. health (DB 연결 포함)
 curl -fsS "$BASE/api/health" | grep -q '"ok":true' || fail "health"
@@ -35,7 +46,7 @@ ok "pages"
 profile="$(curl -fsS -X POST -H 'content-type: application/json' -d '{"nickname":"smoke","avatar":"porong"}' "$BASE/api/profiles")"
 id="$(echo "$profile" | sed -E 's/.*"id":"([0-9a-f-]{36})".*/\1/')"
 [ ${#id} -eq 36 ] || fail "create profile: $profile"
-body='{"epoch":0,"plays":[{"id":"11111111-1111-4111-8111-111111111111","stageId":"w1-s1","correct":6,"total":6,"stars":3,"playedAt":1795400000000}],"progress":{"version":1,"stages":{"w1-s1":{"bestStars":3,"bestAccuracy":1,"plays":1}},"review":{},"session":{"index":1,"lastActive":1795400000000},"daily":{"date":"2026-11-23","seconds":60,"dismissed":false},"history":{"2026-11-23":60}}}'
+body='{"epoch":0,"plays":[{"id":"11111111-1111-4111-8111-111111111111","stageId":"w1-s1","correct":6,"total":6,"stars":3,"playedAt":'"$NOW_MS"'}],"progress":{"version":1,"stages":{"w1-s1":{"bestStars":3,"bestAccuracy":1,"plays":1}},"review":{},"session":{"index":1,"lastActive":'"$NOW_MS"'},"daily":{"date":"'"$TODAY"'","seconds":60,"dismissed":false},"history":{"'"$TODAY"'":60}}}'
 curl -fsS -X PUT -H 'content-type: application/json' -d "$body" "$BASE/api/hangul/progress/$id" | grep -q '"bestStars":3' || fail "sync"
 curl -fsS "$BASE/api/hangul/progress/$id" | grep -q '"w1-s1"' || fail "read back"
 ok "profile + progress sync"
@@ -55,13 +66,20 @@ err="$(curl -s -X PUT -H 'content-type: application/json' -d '{bad' "$BASE/api/h
 echo "$err" | grep -qiE 'stack|sql|select|postgres' && fail "error leaks internals: $err"
 ok "request guards"
 
-# 6. 부모 PIN: 없으면 삭제 불가 → 만들기 → 틀린 PIN 거부 → 맞는 PIN으로 삭제
-code="$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H 'content-type: application/json' -d '{"pin":"1234"}' "$BASE/api/profiles/$id")"
+# 6. 부모 PIN: 없으면 삭제 불가 → 4자리 거부 → (설치 코드 필요) 만들기 → 틀린 PIN 거부 → 맞는 PIN으로 삭제
+code="$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H 'content-type: application/json' -d '{"pin":"123456"}' "$BASE/api/profiles/$id")"
 [ "$code" = "409" ] || fail "delete without pin set → $code"
-curl -fsS -X POST -H 'content-type: application/json' -d '{"newPin":"2468"}' "$BASE/api/parent/pin" >/dev/null || fail "set pin"
-code="$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H 'content-type: application/json' -d '{"pin":"0000"}' "$BASE/api/profiles/$id")"
+code="$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{"newPin":"2468"}' "$BASE/api/parent/pin")"
+[ "$code" = "400" ] || fail "4-digit pin accepted → $code"
+if [ -n "$SETUP_CODE" ]; then
+  curl -fsS "$BASE/api/parent/pin" | grep -q '"setupCodeRequired":true' || fail "setup code not required"
+  code="$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{"newPin":"'"$TEST_PIN"'"}' "$BASE/api/parent/pin")"
+  [ "$code" = "403" ] || fail "first pin without setup code → $code"
+fi
+curl -fsS -X POST -H 'content-type: application/json' -d '{"newPin":"'"$TEST_PIN"'","setupCode":"'"$SETUP_CODE"'"}' "$BASE/api/parent/pin" >/dev/null || fail "set pin"
+code="$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H 'content-type: application/json' -d '{"pin":"00000000"}' "$BASE/api/profiles/$id")"
 [ "$code" = "403" ] || fail "wrong pin → $code"
-code="$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H 'content-type: application/json' -d '{"pin":"2468"}' "$BASE/api/profiles/$id")"
+code="$(curl -s -o /dev/null -w '%{http_code}' -X DELETE -H 'content-type: application/json' -d '{"pin":"'"$TEST_PIN"'"}' "$BASE/api/profiles/$id")"
 [ "$code" = "200" ] || fail "delete with pin → $code"
 ok "parent pin"
 

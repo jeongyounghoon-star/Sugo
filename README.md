@@ -7,7 +7,7 @@ Next.js(App Router) + TypeScript + Tailwind CSS 단일 앱이고, 홈 화면에 
 | --- | --- |
 | `/` | Sugo 허브: 프로젝트 카드 목록 |
 | `/hangul` | 🐣 **한글 모험**: 만 5세 6개월 한글 읽기 (MVP: 월드 1~2) |
-| `/parent` | ⚙️ 부모 설정 (부모 PIN: 프로필 삭제/초기화/이름 변경) |
+| `/parent` | ⚙️ 부모 설정 (부모 PIN 6~10자리: 프로필 삭제/초기화/이름 변경) |
 | `/api/*` | 프로필·진도 API (Postgres) |
 
 ## 집 PC 에 설치 (Docker, LAN 전용)
@@ -15,7 +15,7 @@ Next.js(App Router) + TypeScript + Tailwind CSS 단일 앱이고, 홈 화면에 
 - 설치: **[docs/deploy-windows.md](docs/deploy-windows.md)** (Windows + Docker Desktop, 초보용 단계별)
 - 보안 설계와 설치 후 점검: **[docs/security.md](docs/security.md)**
 - 구성: `docker-compose.yml` = `web`(Next.js standalone) + `db`(Postgres 16, 내부망 전용) + `backup`(매일 pg_dump, 14개 보관)
-- 배포: main 머지 → CI 통과 → GitHub Actions 가 `ghcr.io/jeongyounghoon-star/sugo` 에 이미지 푸시 → PC 작업 스케줄러가 10분마다 `deploy/update.ps1` 로 갱신
+- 배포: main 머지 → CI 통과 → GitHub Actions 가 `ghcr.io/jeongyounghoon-star/sugo` 에 이미지 푸시 → PC 작업 스케줄러가 10분마다 `deploy/update.ps1` 로 **서명 확인 후** digest 고정 갱신 (업데이트 전 자동 백업)
 
 ## 실행
 
