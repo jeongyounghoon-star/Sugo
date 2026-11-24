@@ -16,6 +16,7 @@ $script:SugoSignerIssuer = "https://token.actions.githubusercontent.com"
 $script:CosignImage = "ghcr.io/sigstore/cosign/cosign:v3.1.4@sha256:0f06154836d2de34f887a5c273506d52ca43edaa1d9e53e6510fa78a48f69c2d"
 
 $script:DeployMutexName = "Global\SugoDeploy"
+$script:MaintenanceLockMaxAge = [TimeSpan]::FromHours(6)
 
 # ---------------------------------------------------------------- helpers
 function Invoke-Native {
@@ -82,18 +83,23 @@ function Test-SugoImageSignature {
   <#
     Verifies the keyless cosign signature of an image *by digest*.
     Returns @{ Ok = $true/$false; Reason = "..." }. Never throws for a bad signature.
-    Test-only overrides (process environment, not .env): SUGO_SIGNER_IDENTITY_REGEX, SUGO_COSIGN_DOCKER_ARGS.
+    CI-only overrides (GitHub Actions process environment, not .env):
+    SUGO_SIGNER_IDENTITY_REGEX, SUGO_COSIGN_DOCKER_ARGS.
   #>
   param(
     [Parameter(Mandatory)][string]$Ref,
-    [string]$IdentityRegex = $(if ($env:SUGO_SIGNER_IDENTITY_REGEX) { $env:SUGO_SIGNER_IDENTITY_REGEX } else { $script:SugoSignerIdentityRegex }),
+    [string]$IdentityRegex = $(
+      $override = Get-CiTestOverride "SUGO_SIGNER_IDENTITY_REGEX"
+      if ($override) { $override } else { $script:SugoSignerIdentityRegex }
+    ),
     [string]$Issuer = $script:SugoSignerIssuer
   )
   if (-not (Test-ImageRef $Ref)) { return [pscustomobject]@{ Ok = $false; Reason = "not a digest reference: $Ref" } }
   $digest = $Ref.Substring($Ref.IndexOf("@") + 1)
   $dockerArgs = @("run", "--rm", "--read-only", "--tmpfs", "/tmp:size=64m", "--cap-drop", "ALL",
     "--security-opt", "no-new-privileges", "-e", "HOME=/tmp")
-  if ($env:SUGO_COSIGN_DOCKER_ARGS) { $dockerArgs += ($env:SUGO_COSIGN_DOCKER_ARGS -split '\s+' | Where-Object { $_ }) }
+  $extraDockerArgs = Get-CiTestOverride "SUGO_COSIGN_DOCKER_ARGS"
+  if ($extraDockerArgs) { $dockerArgs += ($extraDockerArgs -split '\s+' | Where-Object { $_ }) }
   $dockerArgs += @($script:CosignImage, "verify", $Ref,
     "--certificate-identity-regexp", $IdentityRegex,
     "--certificate-oidc-issuer", $Issuer,
@@ -109,6 +115,16 @@ function Test-SugoImageSignature {
     if ($d -ne $digest) { return [pscustomobject]@{ Ok = $false; Reason = "signature is for $d, not $digest" } }
   }
   return [pscustomobject]@{ Ok = $true; Reason = "signed by $IdentityRegex" }
+}
+
+function Get-CiTestOverride {
+  <# Test overrides must never weaken a normal or production host. #>
+  param([Parameter(Mandatory)][string]$Name)
+  $value = [Environment]::GetEnvironmentVariable($Name, "Process")
+  if (-not $value) { return $null }
+  if ($env:GITHUB_ACTIONS -eq "true") { return $value }
+  Write-Warning "$Name is set but ignored outside GitHub Actions."
+  return $null
 }
 
 function Enter-DeployLock {
@@ -151,7 +167,73 @@ function Wait-WebHealthy {
   return $false
 }
 
-function Test-MaintenanceLock {
+function New-MaintenanceLock {
+  param(
+    [Parameter(Mandatory)][string]$Root,
+    [Parameter(Mandatory)][string]$Operation
+  )
+  $path = Join-Path $Root "maintenance.lock"
+  $record = [ordered]@{
+    version = 1
+    operation = $Operation
+    createdAt = [DateTimeOffset]::UtcNow.ToString("o")
+    processId = $PID
+  }
+  Set-Content -LiteralPath $path -Value ($record | ConvertTo-Json -Compress) -Encoding ASCII
+  return $path
+}
+
+function Get-MaintenanceLockStatus {
   param([Parameter(Mandatory)][string]$Root)
-  return (Test-Path -LiteralPath (Join-Path $Root "maintenance.lock"))
+  $path = Join-Path $Root "maintenance.lock"
+  if (-not (Test-Path -LiteralPath $path)) {
+    return [pscustomobject]@{ Exists = $false; Stale = $false; Path = $path; Age = [TimeSpan]::Zero; ProcessId = $null; Operation = $null }
+  }
+
+  $item = Get-Item -LiteralPath $path
+  $created = [DateTimeOffset]$item.LastWriteTimeUtc
+  $processId = $null
+  $operation = $null
+  try {
+    $record = (Get-Content -LiteralPath $path -Raw) | ConvertFrom-Json
+    if ($record.createdAt) { $created = [DateTimeOffset]::Parse([string]$record.createdAt) }
+    if ($record.processId -as [int]) { $processId = [int]$record.processId }
+    if ($record.operation) { $operation = [string]$record.operation }
+  } catch {
+    # Legacy/corrupt locks use the file timestamp so they can still age out safely.
+  }
+  $age = [DateTimeOffset]::UtcNow - $created.ToUniversalTime()
+  return [pscustomobject]@{
+    Exists = $true
+    Stale = ($age -ge $script:MaintenanceLockMaxAge)
+    Path = $path
+    Age = $age
+    ProcessId = $processId
+    Operation = $operation
+  }
+}
+
+function Get-SugoFirewallPolicy {
+  param([switch]$AllowTailscale)
+  if ($AllowTailscale) {
+    $nonLan = @(
+      "0.0.0.0-9.255.255.255", "11.0.0.0-100.63.255.255", "100.128.0.0-126.255.255.255",
+      "128.0.0.0-169.253.255.255", "169.255.0.0-172.15.255.255", "172.32.0.0-192.167.255.255",
+      "192.169.0.0-223.255.255.255", "2000::/3"
+    )
+    $profileBlockRemote = @("0.0.0.0-100.63.255.255", "100.128.0.0-255.255.255.255", "::/0")
+  } else {
+    # 100.64.0.0/10 is not a LAN range. It is blocked unless Tailscale is explicitly enabled.
+    $nonLan = @(
+      "0.0.0.0-9.255.255.255", "11.0.0.0-126.255.255.255",
+      "128.0.0.0-169.253.255.255", "169.255.0.0-172.15.255.255", "172.32.0.0-192.167.255.255",
+      "192.169.0.0-223.255.255.255", "2000::/3"
+    )
+    $profileBlockRemote = @()
+  }
+  return [pscustomobject]@{
+    NonLanRanges = $nonLan
+    ProfileBlockRemote = $profileBlockRemote
+    TailscaleAllowed = [bool]$AllowTailscale
+  }
 }

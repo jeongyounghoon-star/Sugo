@@ -30,8 +30,7 @@ if (-not $Force) {
   if ($answer -ne "yes") { Write-Host "취소했습니다."; exit 1 }
 }
 
-$lockFile = Join-Path $Root "maintenance.lock"
-Set-Content -LiteralPath $lockFile -Value "restore $File $(Get-Date -Format s)" -Encoding ASCII
+$lockFile = New-MaintenanceLock -Root $Root -Operation "restore"
 $mutex = $null
 $webStopped = $false
 try {

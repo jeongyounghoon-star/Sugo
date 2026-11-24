@@ -36,14 +36,28 @@ function Write-Log($msg) {
   Write-Host $line
 }
 
+function Test-UpdatePausedByMaintenance {
+  $status = Get-MaintenanceLockStatus $Root
+  if (-not $status.Exists) { return $false }
+  if ($status.Stale) {
+    $ageHours = [Math]::Round($status.Age.TotalHours, 1)
+    Write-Log "WARNING: stale maintenance.lock detected (age $ageHours hours, pid $($status.ProcessId)); removing it so updates can resume"
+    Remove-Item -LiteralPath $status.Path -Force
+    return $false
+  }
+  $ageMinutes = [Math]::Round($status.Age.TotalMinutes, 1)
+  Write-Log "skip: maintenance.lock present (restore in progress; age $ageMinutes minutes, pid $($status.ProcessId))"
+  return $true
+}
+
 $envFile = Join-Path $Root ".env"
 $mutex = $null
 try {
-  if (Test-MaintenanceLock $Root) { Write-Log "skip: maintenance.lock present (restore in progress)"; exit 0 }
+  if (Test-UpdatePausedByMaintenance) { exit 0 }
   $mutex = Enter-DeployLock -TimeoutSeconds 0
   if (-not $mutex) { Write-Log "skip: another deploy action is running"; exit 0 }
   # 잠금을 잡은 뒤 한 번 더 (복구가 막 시작됐을 수 있음)
-  if (Test-MaintenanceLock $Root) { Write-Log "skip: maintenance.lock present (restore in progress)"; exit 0 }
+  if (Test-UpdatePausedByMaintenance) { exit 0 }
 
   $info = Invoke-Native docker @("info", "--format", "{{.ServerVersion}}")
   if ($info.Code -ne 0) { Write-Log "skip: Docker Desktop not running"; exit 0 }

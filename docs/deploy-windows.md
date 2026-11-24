@@ -73,6 +73,8 @@ cd C:\sugo
 powershell -ExecutionPolicy Bypass -File .\deploy\setup.ps1
 ```
 
+이미 설치한 PC에서 다시 실행해도 기존 `.env`(DB 비밀번호, `PIN_PEPPER`, `SETUP_CODE`)는 유지됩니다. 완전히 새 설치를 시작하기 전에만 `-OverwriteEnv`로 재생성할 수 있습니다. **운영 DB가 생긴 뒤에는 사용하지 마세요.** DB 비밀번호가 달라지고 기존 PIN 해시도 새 페퍼와 맞지 않게 됩니다.
+
 스크립트가 하는 일:
 1. Docker 가 켜져 있는지, 로그인한 계정으로 실행했는지 확인
 2. `C:\sugo` 폴더 권한을 **이 사용자 + SYSTEM + Administrators** 만으로 제한 (같은 PC 의 다른 계정이 스크립트/백업을 바꾸거나 읽지 못하게)
@@ -81,7 +83,7 @@ powershell -ExecutionPolicy Bypass -File .\deploy\setup.ps1
 5. 방화벽 규칙 3개:
    - **"Sugo web (LAN only)"**: TCP 3000, 개인 프로필, 로컬 서브넷만 **허용**
    - **"Sugo web block (public/domain networks)"**: 공용/도메인 네트워크에서 3000 **차단**
-   - **"Sugo web block (non-LAN addresses)"**: 집 밖 주소(공인 IP, IPv6 전역 주소)에서 3000 **차단**
+   - **"Sugo web block (non-LAN addresses)"**: 집 밖 주소(공인 IP, IPv6 전역 주소, `100.64.0.0/10`)에서 3000 **차단**
    - 그리고 Docker 가 만든 방화벽 규칙을 표로 보여 줍니다 (아래 "Docker 가 만든 방화벽 규칙 점검")
 6. 이미지의 **서명을 확인**한 뒤 그 이미지(digest)로 실행 (`deploy\update.ps1 -Initial`)
 7. 작업 스케줄러에 **"Sugo auto update"** 등록 (10분마다 새 버전 확인)
@@ -93,6 +95,16 @@ powershell -ExecutionPolicy Bypass -File .\deploy\setup.ps1
 그때 필요한 설치 코드: 12345678
 ```
 **설치 코드를 적어 두세요** (6번에서 씁니다). 나중에 다시 보려면 `C:\sugo\.env` 의 `SETUP_CODE` 줄.
+
+### Tailscale로 접속할 때만
+
+기본 설정은 Tailscale이 쓰는 `100.64.0.0/10`도 LAN 밖으로 보고 차단합니다. Tailscale 피어에서 Sugo에 접속할 계획이면 명시적으로 다음처럼 실행합니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy\setup.ps1 -AllowTailscale
+```
+
+이 옵션은 `100.64.0.0/10`만 추가 허용합니다. 공용 인터넷, 다른 공인 IPv4, 전역 IPv6는 계속 차단되며 포트포워딩이나 UPnP를 켜서는 안 됩니다. Tailscale을 더 이상 쓰지 않으면 옵션 없이 setup.ps1을 다시 실행해 허용 규칙을 제거하세요.
 
 상태 확인:
 ```powershell
@@ -110,7 +122,7 @@ New-NetFirewallRule -DisplayName "Sugo web block (public/domain networks)" -Dire
   -Protocol TCP -LocalPort 3000 -Profile Public,Domain
 New-NetFirewallRule -DisplayName "Sugo web block (non-LAN addresses)" -Direction Inbound -Action Block `
   -Protocol TCP -LocalPort 3000 -Profile Any -RemoteAddress @(
-    "0.0.0.0-9.255.255.255","11.0.0.0-100.63.255.255","100.128.0.0-126.255.255.255",
+    "0.0.0.0-9.255.255.255","11.0.0.0-126.255.255.255",
     "128.0.0.0-169.253.255.255","169.255.0.0-172.15.255.255","172.32.0.0-192.167.255.255",
     "192.169.0.0-223.255.255.255","2000::/3")
 ```
@@ -172,6 +184,7 @@ ipconfig
   - `verified ...` / `updated web image ...`: 정상 업데이트
   - `no change`: 새 버전 없음
   - **`REFUSED ... signature verification failed`**: 서명이 맞지 않아 **바꾸지 않았음** (지금 버전이 계속 돕니다). 반복되면 GitHub 의 "Docker image" 워크플로를 확인하세요.
+  - **`WARNING: stale maintenance.lock ... removing it`**: 복구 창 종료/PC 전원 차단 등으로 6시간 넘게 남은 잠금을 정리하고 업데이트를 재개함
 - 작업 스케줄러는 **로그인한 사용자 세션**에서 돕니다 (Docker Desktop 도 마찬가지). PC를 재부팅하면 로그인해 두세요.
 - 자동 업데이트는 **이미지만** 바꿉니다. `docker-compose.yml` 이나 `deploy\` 스크립트가 바뀐 릴리스는 직접:
   ```powershell
@@ -185,7 +198,7 @@ ipconfig
 
 - 매일 자동으로 `C:\sugo\backups\sugo-YYYYmmdd-HHMMSS.dump` 가 **하루 1개** 생기고, **최근 14개**만 남습니다.
 - 업데이트/복구 직전에는 `sugo-pre-YYYYmmdd-HHMMSS.dump` 가 생기고 최근 5개만 남습니다.
-- 이 폴더를 가끔 USB/클라우드에 복사해 두면 PC 고장에도 안전합니다. `.env` 는 **같이 복사하지 마세요** (따로 안전한 곳에).
+- 이 폴더를 가끔 USB/클라우드에 복사해 두면 PC 고장에도 안전합니다. `.env` 도 반드시 백업하되 DB dump와는 **따로 암호화된 USB/비밀 저장소에** 보관하세요. `.env`가 없으면 `PIN_PEPPER`가 달라져 복구한 DB의 기존 부모 PIN을 확인할 수 없고, 아래 PIN 재설정 절차가 필요합니다.
 
 ### 복구 테스트 (운영 DB는 건드리지 않음, 한 달에 한 번 권장)
 
@@ -202,7 +215,7 @@ powershell -ExecutionPolicy Bypass -File .\deploy\restore-test.ps1
 cd C:\sugo
 powershell -ExecutionPolicy Bypass -File .\deploy\restore.ps1 -File sugo-20261123-210000.dump
 ```
-스크립트가 하는 일: ① `maintenance.lock` 을 만들어 **자동 업데이트를 멈춤** (진행 중인 업데이트는 끝날 때까지 기다림) → ② 지금 DB 를 한 번 더 백업 (`sugo-pre-*.dump`, 복구가 잘못돼도 되돌릴 수 있게) → ③ web 을 멈추고 `pg_restore --clean --if-exists --single-transaction --exit-on-error` (한 트랜잭션이라 중간에 실패하면 **DB 는 복구 전 그대로**) → ④ web 다시 시작, 잠금 해제.
+스크립트가 하는 일: ① 시각과 PID가 기록된 `maintenance.lock` 을 만들어 **자동 업데이트를 멈춤** (진행 중인 업데이트는 끝날 때까지 기다림) → ② 지금 DB 를 한 번 더 백업 (`sugo-pre-*.dump`, 복구가 잘못돼도 되돌릴 수 있게) → ③ web 을 멈추고 `pg_restore --clean --if-exists --single-transaction --exit-on-error` (한 트랜잭션이라 중간에 실패하면 **DB 는 복구 전 그대로**) → ④ web 다시 시작, 잠금 해제. 비정상 종료로 잠금이 남아도 6시간 뒤 update.ps1이 경고 로그를 남기고 정리합니다.
 
 ## 9. 자주 쓰는 명령
 
