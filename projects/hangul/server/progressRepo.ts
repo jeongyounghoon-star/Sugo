@@ -1,5 +1,5 @@
 import "server-only";
-import { eq, sql } from "drizzle-orm";
+import { and, desc, eq, notInArray, sql } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { hangulDailyTime, hangulPlays, hangulProgress } from "@/db/schema";
 import { getProfile } from "@/lib/profiles/repo";
@@ -7,6 +7,9 @@ import { ApiError } from "@/lib/server/http";
 import { createProgress, type Progress } from "../lib/progress";
 import { mergeProgress } from "../lib/sync";
 import type { SyncRequest } from "../lib/schemas";
+
+/** 프로필당 남기는 플레이 기록 수 (오래된 것부터 정리: 디스크가 끝없이 늘지 않게) */
+export const MAX_PLAYS_PER_PROFILE = 5000;
 
 async function requireProfile(db: Db, profileId: string) {
   if (!(await getProfile(db, profileId))) throw new ApiError(404, "not_found");
@@ -69,6 +72,13 @@ export async function syncProgress(db: Db, profileId: string, req: SyncRequest):
           })),
         )
         .onConflictDoNothing();
+      const keep = tx
+        .select({ id: hangulPlays.id })
+        .from(hangulPlays)
+        .where(eq(hangulPlays.profileId, profileId))
+        .orderBy(desc(hangulPlays.playedAt))
+        .limit(MAX_PLAYS_PER_PROFILE);
+      await tx.delete(hangulPlays).where(and(eq(hangulPlays.profileId, profileId), notInArray(hangulPlays.id, keep)));
     }
 
     const days = Object.entries(req.progress.history);

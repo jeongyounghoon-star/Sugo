@@ -1,4 +1,5 @@
 import "server-only";
+import { isIP } from "node:net";
 import { unstable_rethrow } from "next/navigation";
 import type { z } from "zod";
 import { RateLimiter } from "./rateLimit";
@@ -22,20 +23,29 @@ export class ApiError extends Error {
 
 export const KB = 1024;
 
-function hostOnly(host: string): string {
-  // [::1]:3000 → ::1, 192.168.0.2:3000 → 192.168.0.2
-  if (host.startsWith("[")) return host.slice(1, host.indexOf("]"));
-  const i = host.lastIndexOf(":");
-  return i > -1 && host.indexOf(":") === i ? host.slice(0, i) : host;
+/** Host 헤더에서 이름만. 형식이 이상하면 null (예: 콜론이 여러 개인 evil.com:1:2) */
+function hostOnly(host: string): string | null {
+  if (host.startsWith("[")) {
+    // [::1]:3000 → ::1 (괄호 안은 IPv6 리터럴이어야 함)
+    const end = host.indexOf("]");
+    if (end < 0) return null;
+    const rest = host.slice(end + 1);
+    if (rest && !/^:\d{1,5}$/.test(rest)) return null;
+    const ip = host.slice(1, end);
+    return isIP(ip) === 6 ? ip : null;
+  }
+  // 192.168.0.2:3000 → 192.168.0.2
+  const parts = host.split(":");
+  if (parts.length > 2) return null;
+  if (parts.length === 2 && !/^\d{1,5}$/.test(parts[1])) return null;
+  return parts[0] || null;
 }
-
-const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/;
 
 export function isAllowedHost(host: string | null, extra = process.env.ALLOWED_HOSTS ?? ""): boolean {
   if (!host) return false;
   const name = hostOnly(host.trim().toLowerCase());
   if (!name) return false;
-  if (name === "localhost" || IPV4.test(name) || name.includes(":")) return true; // IPv4 / IPv6 리터럴
+  if (name === "localhost" || isIP(name) !== 0) return true; // IPv4 / IPv6 리터럴
   if (name.endsWith(".local")) return true; // mDNS (예: my-pc.local)
   const allowed = extra
     .split(",")
