@@ -66,4 +66,8 @@ Assert-True ($setupText -match '\[switch\]\$OverwriteEnv') "setup.ps1 has no exp
 Assert-True ($setupText -match '\[switch\]\$AllowTailscale') "setup.ps1 has no explicit Tailscale switch"
 Assert-True ($setupText -match '-not \(Test-Path \$envFile\) -or \$OverwriteEnv') "setup.ps1 does not preserve .env by default"
 
+$composeText = Get-Content -LiteralPath (Join-Path (Split-Path -Parent $PSScriptRoot) "docker-compose.yml") -Raw
+Assert-True ($composeText -match 'PIN_PEPPER: \$\{PIN_PEPPER:\?') "docker-compose.yml does not require PIN_PEPPER"
+Assert-True ($composeText -match 'SETUP_CODE: \$\{SETUP_CODE:\?') "docker-compose.yml does not require SETUP_CODE"
+
 Write-Host "deploy security tests passed"

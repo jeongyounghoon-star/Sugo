@@ -31,9 +31,9 @@ services:
       DATABASE_URL: postgres://sugo:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 를 .env 에 설정하세요 (deploy/setup.ps1)}@db:5432/sugo
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-}
       # PIN 해시에 섞는 비밀값 (DB/백업만으로는 PIN을 풀 수 없게). setup.ps1 이 생성.
-      PIN_PEPPER: ${PIN_PEPPER:-}
+      PIN_PEPPER: ${PIN_PEPPER:?PIN_PEPPER 를 .env 에 설정하세요 (deploy/setup.ps1)}
       # 처음 부모 PIN을 만들 때 필요한 설치 코드. setup.ps1 이 생성해 화면에 보여 준다.
-      SETUP_CODE: ${SETUP_CODE:-}
+      SETUP_CODE: ${SETUP_CODE:?SETUP_CODE 를 .env 에 설정하세요 (deploy/setup.ps1)}
     # 웹만 LAN에 노출. 외부 공개는 하지 않는다 (공유기 포트포워딩/UPnP 금지, 방화벽은 로컬 서브넷만).
     ports:
       - "${WEB_BIND:-0.0.0.0}:${WEB_PORT:-3000}:3000"
