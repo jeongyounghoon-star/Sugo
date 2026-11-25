@@ -13,7 +13,7 @@ import {
 import { PIN_MAX, PIN_MIN, SETUP_CODE_MAX, type Profile } from "@/lib/profiles/shared";
 
 /**
- * 부모 화면 (허브 공용). PIN을 확인해야 열린다.
+ * 부모 화면. PIN을 확인해야 열린다.
  * PIN은 화면에만 잠깐 들고 있고, 바꾸는 요청마다 서버가 다시 확인한다.
  */
 
@@ -141,8 +141,8 @@ function Shell({ children }: { children: ReactNode }) {
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10 font-sans">
       <header className="flex items-center justify-between">
         <h1 className="font-display text-4xl text-slate-800">⚙️ 부모 설정</h1>
-        <Link href="/" className="rounded-xl bg-white px-4 py-2 shadow">
-          처음 화면
+        <Link href="/hangul" className="rounded-xl bg-white px-4 py-2 shadow">
+          한글 모험으로
         </Link>
       </header>
       {children}

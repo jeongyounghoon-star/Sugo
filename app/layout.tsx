@@ -11,10 +11,10 @@ const jua = Jua({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Sugo", template: "%s · Sugo" },
-  description: "Sugo — 우리 가족이 만드는 작은 앱 모음",
-  applicationName: "Sugo",
-  appleWebApp: { capable: true, title: "Sugo", statusBarStyle: "default" },
+  title: "한글 모험",
+  description: "만 5세를 위한 6개월 한글 읽기 모험",
+  applicationName: "한글 모험",
+  appleWebApp: { capable: true, title: "한글 모험", statusBarStyle: "default" },
   icons: {
     icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],

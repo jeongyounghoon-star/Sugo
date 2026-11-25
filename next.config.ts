@@ -50,6 +50,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async redirects() {
+    // 사이트 주소(/)로 들어오면 바로 한글 모험. 임시(307) 이동이라 브라우저가 기억하지 않는다.
+    return [{ source: "/", destination: "/hangul", permanent: false }];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

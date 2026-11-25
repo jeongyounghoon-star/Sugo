@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { IconButton, IconLink } from "@/components/IconButton";
+import { IconButton } from "@/components/IconButton";
 import { createProfile, refreshProfiles, useCachedProfiles } from "@/lib/profiles/client";
 import { AVATARS, NICKNAME_MAX } from "@/lib/profiles/shared";
 import { playSequence, stopAudio } from "@/projects/hangul/audio/player";
@@ -9,7 +9,7 @@ import { Pet } from "@/projects/hangul/components/Pet";
 import { PETS, getPet } from "@/projects/hangul/data/pets";
 
 /**
- * 아이 프로필 고르기/만들기 (허브 공용). 글을 몰라도 펫 그림으로 고를 수 있다.
+ * 아이 프로필 고르기/만들기 . 글을 몰라도 펫 그림으로 고를 수 있다.
  * 이름(별명)은 어른이 입력. 삭제/초기화는 부모 화면(PIN)에서만.
  */
 export function ProfilePicker({ onPick }: { onPick: (id: string) => void }) {
@@ -46,9 +46,6 @@ export function ProfilePicker({ onPick }: { onPick: (id: string) => void }) {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-8 p-6">
       <div className="flex items-center gap-3">
-        <IconLink href="/" label="Sugo 처음 화면">
-          🏠
-        </IconLink>
         <IconButton label="다시 듣기" color="#e3f2fd" onClick={() => playSequence(["p_profile_pick"])}>
           🔊
         </IconButton>

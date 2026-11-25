@@ -31,7 +31,7 @@ export function DailyDoneOverlay() {
       <p className="text-5xl" aria-hidden>
         💤
       </p>
-      <IconLink href="/" label="오늘은 끝! 처음 화면으로" size="xl" color="#ffcf5c">
+      <IconLink href="/hangul" label="오늘은 끝! 처음 화면으로" size="xl" color="#ffcf5c">
         🏠
       </IconLink>
       <button
