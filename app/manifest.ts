@@ -3,11 +3,11 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Sugo",
-    short_name: "Sugo",
-    description: "Sugo — 우리 가족이 만드는 작은 앱 모음 (한글 모험 등)",
+    name: "한글 모험",
+    short_name: "한글 모험",
+    description: "만 5세를 위한 6개월 한글 읽기 모험",
     lang: "ko",
-    start_url: "/",
+    start_url: "/hangul",
     scope: "/",
     display: "standalone",
     orientation: "any",

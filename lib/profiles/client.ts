@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { Profile } from "./shared";
 
 /**
- * 브라우저 쪽 프로필 상태 (허브 공용).
+ * 브라우저 쪽 프로필 상태
  * - 지금 고른 아이: localStorage "sugo.activeProfile"
  * - 프로필 목록은 서버에서 받아 캐시 → 서버가 잠깐 꺼져도 고를 수 있다
  */

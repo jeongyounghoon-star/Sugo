@@ -22,7 +22,7 @@ curl -fsS "$BASE/api/health" | grep -q '"ok":true' || fail "health"
 ok "health"
 
 # 2. 보안 헤더
-headers="$(curl -fsS -D - -o /dev/null "$BASE/")"
+headers="$(curl -fsS -D - -o /dev/null "$BASE/hangul")"
 for h in "content-security-policy: default-src 'self'" "x-content-type-options: nosniff" "referrer-policy: no-referrer" \
          "frame-ancestors 'none'" "permissions-policy:"; do
   echo "$headers" | tr 'A-Z' 'a-z' | grep -qF "$(echo "$h" | tr 'A-Z' 'a-z')" || fail "header $h"
@@ -31,10 +31,13 @@ echo "$headers" | grep -qi '^x-powered-by' && fail "x-powered-by exposed"
 ok "security headers"
 
 # 3. 페이지
-for p in / /hangul /hangul/world/1 /hangul/play/w1-s1 /parent /manifest.webmanifest /audio/hangul/v_a.mp3; do
+for p in /hangul /hangul/world/1 /hangul/play/w1-s1 /parent /manifest.webmanifest /audio/hangul/v_a.mp3; do
   code="$(curl -s -o /dev/null -w '%{http_code}' "$BASE$p")"
   [ "$code" = "200" ] || fail "GET $p → $code"
 done
+# 사이트 주소(/)는 한글 모험으로 이동
+code="$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$BASE/")"
+case "$code" in "307 "*"/hangul") ;; *) fail "GET / → $code (expected 307 to /hangul)";; esac
 # 없는 월드/잠긴 월드 스테이지는 not-found 화면 (부분 프리렌더라 상태코드는 200일 수 있음)
 for p in /hangul/play/w3-s1 /hangul/world/9; do
   curl -s "$BASE$p" | grep -q 'NEXT_HTTP_ERROR_FALLBACK;404' || fail "GET $p is not a not-found page"

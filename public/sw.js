@@ -1,6 +1,6 @@
 /* Sugo 서비스 워커: 홈 화면 설치 + 한 번 본 화면/음성은 오프라인에서도 재생 */
-const VERSION = "sugo-v1";
-const PRECACHE = ["/", "/hangul", "/manifest.webmanifest", "/icons/icon-192.png"];
+const VERSION = "sugo-v2";
+const PRECACHE = ["/hangul", "/manifest.webmanifest", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -64,7 +64,7 @@ self.addEventListener("fetch", (event) => {
           }
           return res;
         })
-        .catch(() => caches.match(req).then((hit) => hit || caches.match("/"))),
+        .catch(() => caches.match(req).then((hit) => hit || caches.match("/hangul"))),
     );
   }
 });

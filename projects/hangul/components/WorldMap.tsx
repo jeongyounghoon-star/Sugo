@@ -38,9 +38,6 @@ export function WorldMap() {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 sm:p-6">
       <header className="flex items-center justify-between gap-3">
-        <IconLink href="/" label="Sugo 처음 화면" color="#ffffff">
-          🏠
-        </IconLink>
         <h1 className="text-3xl text-sky-900 drop-shadow-sm sm:text-4xl">한글 모험</h1>
         <div className="flex items-center gap-3">
           <ProfileButton />
